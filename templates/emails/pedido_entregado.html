@@ -1,0 +1,6 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}¡Pedido entregado! 🎉{% endblock %}
+{% block contenido %}
+<p>Hola {{ pedido.usuario.primer_nombre }},</p>
+<p>Confirmamos que tu pedido <strong>#{{ pedido.id }}</strong> fue entregado. ¡Gracias por tu compra!</p>
+{% endblock %}

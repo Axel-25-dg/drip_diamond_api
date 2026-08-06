@@ -1,0 +1,7 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Recibimos tu solicitud de compra{% endblock %}
+{% block contenido %}
+<p>Hola {{ pedido.usuario.primer_nombre }},</p>
+<p>Recibimos tu solicitud de compra <strong>#{{ pedido.id }}</strong> por un total estimado de ${{ pedido.total }}.</p>
+<p>Nuestro equipo se pondrá en contacto contigo pronto para coordinar el pago.</p>
+{% endblock %}

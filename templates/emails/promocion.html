@@ -1,0 +1,6 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}¡Nueva promoción! 🔥{% endblock %}
+{% block contenido %}
+<p>{{ producto.nombre }} ahora a <strong>${{ promocion.precio_promocional }}</strong>.</p>
+<p>Válido hasta {{ promocion.fecha_fin|date:"d/m/Y" }}.</p>
+{% endblock %}

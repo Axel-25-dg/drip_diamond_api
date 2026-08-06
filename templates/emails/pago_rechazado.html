@@ -1,0 +1,6 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Tu comprobante fue rechazado{% endblock %}
+{% block contenido %}
+<p>Hola {{ pedido.usuario.primer_nombre }},</p>
+<p>No pudimos verificar el comprobante de tu pedido <strong>#{{ pedido.id }}</strong>. Por favor vuelve a subirlo.</p>
+{% endblock %}

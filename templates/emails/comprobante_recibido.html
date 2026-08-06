@@ -1,0 +1,6 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Recibimos tu comprobante{% endblock %}
+{% block contenido %}
+<p>Hola {{ pedido.usuario.primer_nombre }},</p>
+<p>Recibimos el comprobante de pago de tu pedido <strong>#{{ pedido.id }}</strong>. Lo estamos verificando.</p>
+{% endblock %}

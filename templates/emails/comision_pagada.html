@@ -1,0 +1,7 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Tu comisión fue pagada{% endblock %}
+{% block contenido %}
+<p>Hola {{ liquidacion.vendedor.primer_nombre }},</p>
+<p>Se transfirió tu comisión del periodo {{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }} por ${{ liquidacion.total_comisiones }} ({{ liquidacion.total_pares }} pares vendidos).</p>
+<p>El comprobante está disponible en tu panel de vendedor.</p>
+{% endblock %}

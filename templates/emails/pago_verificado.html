@@ -1,0 +1,6 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Pago verificado ✅{% endblock %}
+{% block contenido %}
+<p>Hola {{ pedido.usuario.primer_nombre }},</p>
+<p>Tu pago del pedido <strong>#{{ pedido.id }}</strong> fue verificado. Ya estamos preparando tus zapatillas.</p>
+{% endblock %}

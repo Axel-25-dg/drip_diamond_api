@@ -1,0 +1,9 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Ticket de compra — Pedido #{{ pedido.id }}{% endblock %}
+{% block contenido %}
+<table style="width:100%;border-collapse:collapse;">
+  <tr><td style="padding:4px 0;">Subtotal</td><td style="text-align:right;">${{ pedido.subtotal }}</td></tr>
+  <tr><td style="padding:4px 0;">Envío</td><td style="text-align:right;">${{ pedido.costo_envio }}</td></tr>
+  <tr><td style="padding:4px 0;font-weight:bold;">Total</td><td style="text-align:right;font-weight:bold;">${{ pedido.total }}</td></tr>
+</table>
+{% endblock %}

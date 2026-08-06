@@ -1,0 +1,7 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Tu pedido va en camino 🚚{% endblock %}
+{% block contenido %}
+<p>Hola {{ pedido.usuario.primer_nombre }},</p>
+<p>Tu pedido <strong>#{{ pedido.id }}</strong> fue despachado.</p>
+<p>Código de seguimiento: <strong>{{ pedido.numero_guia }}</strong></p>
+{% endblock %}

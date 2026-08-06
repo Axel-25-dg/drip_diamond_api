@@ -1,0 +1,7 @@
+{% extends "emails/base_email.html" %}
+{% block encabezado %}Alerta de seguridad ⚠️{% endblock %}
+{% block contenido %}
+<p>Hola {{ usuario.primer_nombre }},</p>
+<p>{{ detalle }}</p>
+<p>Si no reconoces esta actividad, contáctanos de inmediato.</p>
+{% endblock %}
