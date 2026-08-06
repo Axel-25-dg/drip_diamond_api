@@ -201,11 +201,19 @@ IVA_PORCENTAJE = 15                 # % vigente Ecuador — ajustar según norma
 
 
 # ------------------------------------------------------------------
-# Email — TODO el envío de correos va por la API de Resend (sin SMTP)
+# Email — Soporta Gmail SMTP y la API HTTP de Resend
 # ------------------------------------------------------------------
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-responder@zapatillas.ec')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True

@@ -18,12 +18,31 @@ class ResendError(Exception):
 
 def enviar_correo_resend(destinatario: str, asunto: str, html: str) -> bool:
     """
-    Envía un correo vía Resend. Devuelve True/False según el éxito;
-    nunca lanza excepción hacia arriba (para no romper el flujo de negocio
-    si el correo falla) — el error queda registrado en logs.
+    Envía un correo vía SMTP (Gmail) si hay credenciales configuradas en .env,
+    o mediante la API HTTP de Resend en su defecto.
+    Devuelve True/False según el éxito y no rompe la ejecución si el envío falla.
     """
+    # 1. Prioridad: SMTP (ej. Gmail con Contraseña de Aplicación)
+    if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
+        try:
+            from django.core.mail import EmailMultiAlternatives
+            remitente = settings.DEFAULT_FROM_EMAIL or settings.EMAIL_HOST_USER
+            msg = EmailMultiAlternatives(
+                subject=asunto,
+                body='',
+                from_email=remitente,
+                to=[destinatario],
+            )
+            msg.attach_alternative(html, "text/html")
+            msg.send(fail_silently=False)
+            return True
+        except Exception as exc:
+            logger.error('Error enviando correo vía SMTP a %s: %s', destinatario, exc)
+            return False
+
+    # 2. Fallback: API HTTP de Resend
     if not settings.RESEND_API_KEY:
-        logger.warning('RESEND_API_KEY no configurada — correo NO enviado a %s: %s', destinatario, asunto)
+        logger.warning('Ni SMTP ni RESEND_API_KEY configurados — correo NO enviado a %s: %s', destinatario, asunto)
         return False
 
     try:
@@ -48,3 +67,4 @@ def enviar_correo_resend(destinatario: str, asunto: str, html: str) -> bool:
     except requests.RequestException as exc:
         logger.error('Error de red enviando correo por Resend a %s: %s', destinatario, exc)
         return False
+
