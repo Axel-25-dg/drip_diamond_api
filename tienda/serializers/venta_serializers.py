@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from tienda.models import ComisionVenta, LiquidacionMensual, MensajeChatPedido
+from tienda.models import ComisionVenta, LiquidacionMensual
 
 
 class ComisionVentaSerializer(serializers.ModelSerializer):
@@ -34,12 +34,3 @@ class GenerarLiquidacionSerializer(serializers.Serializer):
 
 class MarcarPagadaSerializer(serializers.Serializer):
     comprobante_pago = serializers.FileField()
-
-
-class MensajeChatPedidoSerializer(serializers.ModelSerializer):
-    remitente_nombre = serializers.CharField(source='remitente.nombre_completo', read_only=True)
-
-    class Meta:
-        model = MensajeChatPedido
-        fields = ['id', 'pedido', 'remitente', 'remitente_nombre', 'mensaje', 'es_confirmacion_entrega', 'enviado_en']
-        read_only_fields = ['remitente', 'es_confirmacion_entrega']

@@ -8,12 +8,20 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carga el archivo .env de la raíz del proyecto. Sin esto, TODAS las
+# variables de abajo se ignoran silenciosamente y Django cae en sus
+# valores por defecto (ej. ALLOWED_HOSTS='*', DEBUG=True, sqlite).
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost,178.105.61.61').split(',') if host.strip()]
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'inseguro-cambiar-en-produccion')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',') if h.strip()]
+
+# Necesario en producción detrás de HTTPS con dominio propio (ej. despliegue con Nginx/Gunicorn)
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()
+]
 
 # ------------------------------------------------------------------
 # Apps
@@ -31,8 +39,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
-    'drf_spectacular',
-    'channels',
 
     'tienda',
     'seguridad_acceso',
@@ -73,29 +79,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': os.environ.get('CHANNEL_LAYER_BACKEND', 'channels.layers.InMemoryChannelLayer'),
-    }
-}
-# En producción usar Redis:
-# 'BACKEND': 'channels_redis.core.RedisChannelLayer',
-# 'CONFIG': {'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379/0')]},
-
 # ------------------------------------------------------------------
 # Base de datos
 # ------------------------------------------------------------------
-DATABASES = {
-    'default': {
-        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.environ.get('DB_NAME', 'languageapi_db'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'admin'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-        'TEST': {'NAME': os.environ.get('TEST_DB_NAME', 'languageapi_test_db')},
+if os.environ.get('DB_ENGINE') == 'postgresql':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'zapatillas_db'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -127,8 +131,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
-    'DEFAULT_RENDERER_CLASSES': ('core.renderers.UniformJSONRenderer',),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
@@ -153,11 +155,12 @@ SIMPLE_JWT = {
 }
 
 # ------------------------------------------------------------------
-# CORS
+# CORS (solo web)
 # ------------------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'True') == 'True'
-CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',') if origin.strip()]
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
 CORS_ALLOW_CREDENTIALS = True
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
 
 # ------------------------------------------------------------------
 # Seguridad HTTP
@@ -176,16 +179,13 @@ LOGIN_BLOQUEO_MINUTOS = 15
 # ------------------------------------------------------------------
 COMISION_FIJA_POR_PAR = 5.00        # USD, fija por cada par vendido (no %)
 IVA_PORCENTAJE = 15                 # % vigente Ecuador — ajustar según normativa actual
-EMPRESA_RUC = os.environ.get('EMPRESA_RUC', '')
-EMPRESA_RAZON_SOCIAL = os.environ.get('EMPRESA_RAZON_SOCIAL', 'Zapatillas EC')
 
 # ------------------------------------------------------------------
-# Email
+# Email — TODO el envío de correos va por la API de Resend (sin SMTP)
 # ------------------------------------------------------------------
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-responder@localhost')
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-responder@zapatillas.ec')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
@@ -194,13 +194,6 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Zapatillas API',
-    'DESCRIPTION': 'API REST para la gestión de ventas, pedidos, notificaciones y comisiones.',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-}
 
 LOGGING = {
     'version': 1,

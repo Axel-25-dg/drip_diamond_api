@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -5,7 +6,7 @@ from django.utils import timezone
 
 class Marca(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
-    logo = models.ImageField(upload_to='marcas/%Y/%m/', null=True, blank=True)
+    logo = models.ImageField(upload_to='marcas/', null=True, blank=True)
     activa = models.BooleanField(default=True)
 
     class Meta:
@@ -47,6 +48,10 @@ class Producto(models.Model):
     activo = models.BooleanField(default=True)
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
+
+    # Imágenes: relación genérica reutilizable (ver tienda/models/imagen.py).
+    # Un producto puede tener varias; el frontend arma la galería con esto.
+    imagenes = GenericRelation('tienda.ImagenAdjunta')
 
     class Meta:
         verbose_name = 'Producto'
@@ -106,22 +111,6 @@ class VarianteProducto(models.Model):
     @property
     def disponible(self):
         return self.stock > 0
-
-
-class FotoProducto(models.Model):
-    """Imágenes de producto almacenadas localmente en MEDIA_ROOT."""
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='fotos')
-    imagen = models.ImageField(upload_to='productos/%Y/%m/')
-    orden = models.PositiveSmallIntegerField(default=0)
-    es_principal = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = 'Foto de Producto'
-        verbose_name_plural = 'Fotos de Producto'
-        ordering = ['orden']
-
-    def __str__(self):
-        return f'Foto {self.orden} de {self.producto}'
 
 
 class Promocion(models.Model):

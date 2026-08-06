@@ -2,7 +2,6 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from tienda.views.carrito_views import CarritoView
-from tienda.views.chat_views import MensajesChatPedidoView
 from tienda.views.contabilidad_views import (
     FacturaViewSet,
     LibroVentasViewSet,
@@ -12,15 +11,14 @@ from tienda.views.contabilidad_views import (
     RetencionImpuestoViewSet,
 )
 from tienda.views.envio_views import CostoEnvioZonaViewSet
+from tienda.views.imagen_views import ImagenAdjuntaViewSet, SubirImagenView
 from tienda.views.pedido_views import (
-    GeocodificarDireccionView,
     HistorialComprasView,
     PedidoViewSet,
     VerificarComprobanteView,
 )
 from tienda.views.producto_views import (
     CategoriaViewSet,
-    FotoProductoViewSet,
     MarcaViewSet,
     ProductoViewSet,
     PromocionViewSet,
@@ -44,7 +42,7 @@ router.register('categorias', CategoriaViewSet, basename='categoria')
 router.register('tallas', TallaViewSet, basename='talla')
 router.register('productos', ProductoViewSet, basename='producto')
 router.register('variantes', VarianteProductoViewSet, basename='variante')
-router.register('fotos', FotoProductoViewSet, basename='foto')
+router.register('imagenes', ImagenAdjuntaViewSet, basename='imagen')
 router.register('promociones', PromocionViewSet, basename='promocion')
 router.register('pedidos', PedidoViewSet, basename='pedido')
 router.register('costos-envio', CostoEnvioZonaViewSet, basename='costo-envio')
@@ -58,6 +56,8 @@ router.register('reportes-sri', ReporteSRIViewSet, basename='reporte-sri')
 router.register('notificaciones', NotificacionViewSet, basename='notificacion')
 
 urlpatterns = [
+    path('imagenes/subir/', SubirImagenView.as_view(), name='subir-imagen'),
+
     path('usuarios/registro/', RegistroClienteView.as_view(), name='registro-cliente'),
     path('usuarios/verificar-username/', VerificarUsernameView.as_view(), name='verificar-username'),
     path('usuarios/vendedores/crear/', CrearVendedorView.as_view(), name='crear-vendedor'),
@@ -71,5 +71,4 @@ urlpatterns = [
         VerificarComprobanteView.as_view({'patch': 'partial_update'}),
         name='verificar-comprobante',
     ),
-    path('pedidos/<int:pedido_id>/chat/mensajes/', MensajesChatPedidoView.as_view(), name='chat-pedido-mensajes'),
 ] + router.urls

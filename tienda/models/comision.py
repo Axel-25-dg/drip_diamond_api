@@ -10,10 +10,8 @@ class EstadoComision(models.TextChoices):
 
 class ComisionVenta(models.Model):
     """
-    Se crea ÚNICAMENTE cuando el contador confirma, vía el chat en tiempo
-    real del pedido, que el cliente ya recibió su paquete (ver
-    services/comision_service.py + consumers/chat_pedido_consumer.py).
-    Antes de eso NO existe registro de comisión para ese pedido.
+    Se crea ÚNICAMENTE cuando el contador confirma que el cliente ya recibió
+    su paquete. Antes de eso NO existe registro de comisión para ese pedido.
 
     Monto = cantidad total de pares del pedido x settings.COMISION_FIJA_POR_PAR.
     """

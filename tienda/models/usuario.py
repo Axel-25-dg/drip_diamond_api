@@ -21,7 +21,6 @@ class Usuario(AbstractUser):
     segundo_apellido = models.CharField(max_length=50, blank=True)
 
     rol = models.CharField(max_length=20, choices=Rol.choices, default=Rol.CLIENTE)
-    cedula = models.CharField(max_length=13, unique=True, null=True, blank=True)
     telefono = models.CharField(max_length=15)
     direccion_referencial = models.CharField(
         max_length=255, blank=True,
@@ -37,7 +36,7 @@ class Usuario(AbstractUser):
     class Meta:
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
-        indexes = [models.Index(fields=['rol']), models.Index(fields=['cedula'])]
+        indexes = [models.Index(fields=['rol'])]
 
     def __str__(self):
         return f'{self.nombre_completo} ({self.get_rol_display()})'

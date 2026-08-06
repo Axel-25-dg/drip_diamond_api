@@ -24,8 +24,7 @@ class Pedido(models.Model):
     """
     Eje central. IMPORTANTE: la comisión del vendedor NO se genera aquí ni
     al verificar el pago — solo se genera cuando el estado pasa a ENTREGADO
-    a través de la confirmación manual del contador (ver services/comision_service.py
-    y consumers/chat_pedido_consumer.py).
+    a través de la confirmación manual del contador (ver services/comision_service.py).
     """
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='pedidos')
     vendedor = models.ForeignKey(

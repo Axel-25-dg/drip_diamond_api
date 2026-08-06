@@ -10,7 +10,7 @@ class EstadoComprobante(models.TextChoices):
 
 class ComprobantePago(models.Model):
     """
-    El cliente lo sube desde el chat/app. Solo Administrador o Contador
+    El cliente lo sube desde la aplicación. Solo Administrador o Contador
     pueden verificarlo. Verificar dispara: factura automática + correo +
     notificación (ver tienda/signals.py). NO dispara la comisión todavía.
     """

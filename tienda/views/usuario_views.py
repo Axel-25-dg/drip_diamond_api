@@ -34,7 +34,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
     permission_classes = [EsAdministrador]
     filterset_fields = ['rol']
-    search_fields = ['username', 'email', 'primer_nombre', 'primer_apellido', 'cedula']
+    search_fields = ['username', 'email', 'primer_nombre', 'primer_apellido']
 
     @action(detail=False, methods=['get', 'patch'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):

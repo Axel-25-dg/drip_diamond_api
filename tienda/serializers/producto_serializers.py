@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from tienda.models import Categoria, FotoProducto, Marca, Producto, Promocion, Talla, VarianteProducto
+from tienda.models import Categoria, Marca, Producto, Promocion, Talla, VarianteProducto
+from tienda.serializers.imagen_serializers import ImagenAdjuntaSerializer
 
 
 class MarcaSerializer(serializers.ModelSerializer):
@@ -19,12 +20,6 @@ class TallaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Talla
         fields = ['id', 'valor']
-
-
-class FotoProductoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FotoProducto
-        fields = ['id', 'imagen', 'orden', 'es_principal']
 
 
 class PromocionSerializer(serializers.ModelSerializer):
@@ -59,8 +54,11 @@ class ProductoListaSerializer(serializers.ModelSerializer):
         ]
 
     def get_foto_principal(self, obj):
-        foto = obj.fotos.filter(es_principal=True).first() or obj.fotos.first()
-        return foto.imagen.url if foto else None
+        imagen = obj.imagenes.filter(es_principal=True).first() or obj.imagenes.first()
+        if not imagen:
+            return None
+        request = self.context.get('request')
+        return request.build_absolute_uri(imagen.archivo.url) if request else imagen.archivo.url
 
     def get_tallas_disponibles(self, obj):
         return [v.talla.valor for v in obj.variantes.filter(stock__gt=0)]
@@ -76,7 +74,7 @@ class ProductoDetalleSerializer(serializers.ModelSerializer):
     categoria_id = serializers.PrimaryKeyRelatedField(
         queryset=Categoria.objects.all(), source='categoria', write_only=True, required=False
     )
-    fotos = FotoProductoSerializer(many=True, read_only=True)
+    imagenes = ImagenAdjuntaSerializer(many=True, read_only=True)
     variantes = VarianteProductoSerializer(many=True, read_only=True)
     promociones = PromocionSerializer(many=True, read_only=True)
     precio_actual = serializers.DecimalField(max_digits=8, decimal_places=2, read_only=True)
@@ -87,6 +85,6 @@ class ProductoDetalleSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'marca', 'marca_id', 'categoria', 'categoria_id',
             'nombre', 'modelo', 'calidad', 'descripcion', 'precio_base', 'precio_actual',
-            'activo', 'disponible', 'fotos', 'variantes', 'promociones', 'creado_en',
+            'activo', 'disponible', 'imagenes', 'variantes', 'promociones', 'creado_en',
         ]
         read_only_fields = ['id', 'creado_en']

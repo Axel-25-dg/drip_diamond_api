@@ -1,31 +1,21 @@
-from django.conf import settings
 from django.template.loader import render_to_string
 
-from core.email import EmailMessage, ResendError, send_templated_email
+from tienda.services.resend_service import enviar_correo_resend
 
 
 def _enviar(usuario, tipo, asunto, mensaje_corto, template, contexto):
     from tienda.models import Notificacion
 
-    mensaje_texto = template.replace('.html', '.txt')
+    mensaje_html = render_to_string(template, contexto)
     notificacion = Notificacion.objects.create(
         usuario=usuario, tipo=tipo, asunto=asunto, mensaje_corto=mensaje_corto,
     )
-    try:
-        send_templated_email(
-            EmailMessage(
-                subject=asunto,
-                html_template=template,
-                text_template=mensaje_texto,
-                context=contexto,
-                recipients=[usuario.email],
-                from_email=settings.DEFAULT_FROM_EMAIL,
-            )
-        )
+
+    enviado = enviar_correo_resend(destinatario=usuario.email, asunto=asunto, html=mensaje_html)
+    if enviado:
         notificacion.correo_enviado = True
         notificacion.save(update_fields=['correo_enviado'])
-    except ResendError:
-        pass
+
     return notificacion
 
 

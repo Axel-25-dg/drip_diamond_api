@@ -10,13 +10,12 @@ from tienda.models import (
     DetallePedido,
     DireccionEnvioPedido,
     Factura,
-    FotoProducto,
     HistorialEstadoPedido,
+    ImagenAdjunta,
     ItemCarrito,
     LibroVentas,
     LiquidacionMensual,
     Marca,
-    MensajeChatPedido,
     NotaCredito,
     Notificacion,
     PerfilContador,
@@ -39,14 +38,9 @@ class UsuarioAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         ('Datos de negocio', {'fields': (
             'rol', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido',
-            'cedula', 'telefono', 'direccion_referencial', 'doble_factor_activo',
+            'telefono', 'direccion_referencial', 'doble_factor_activo',
         )}),
     )
-
-
-class FotoInline(admin.TabularInline):
-    model = FotoProducto
-    extra = 1
 
 
 class VarianteInline(admin.TabularInline):
@@ -59,7 +53,7 @@ class ProductoAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'marca', 'calidad', 'precio_base', 'activo']
     list_filter = ['marca', 'calidad', 'activo']
     search_fields = ['nombre', 'modelo']
-    inlines = [VarianteInline, FotoInline]
+    inlines = [VarianteInline]
 
 
 class DetalleInline(admin.TabularInline):
@@ -109,10 +103,10 @@ admin.site.register(Carrito)
 admin.site.register(ItemCarrito)
 admin.site.register(DireccionEnvioPedido)
 admin.site.register(CostoEnvioZona)
-admin.site.register(MensajeChatPedido)
 admin.site.register(Factura)
 admin.site.register(NotaCredito)
 admin.site.register(RetencionImpuesto)
 admin.site.register(LibroVentas)
 admin.site.register(ReporteSRI)
 admin.site.register(Notificacion)
+admin.site.register(ImagenAdjunta)

@@ -47,7 +47,6 @@ class DireccionEnvioPedidoSerializer(serializers.ModelSerializer):
         model = DireccionEnvioPedido
         fields = [
             'direccion_formateada', 'referencia_adicional', 'ciudad',
-            'latitud', 'longitud', 'place_id',
         ]
 
 
@@ -93,16 +92,13 @@ class PedidoSerializer(serializers.ModelSerializer):
 
 
 class CrearPedidoSerializer(serializers.Serializer):
-    """Input para generar el pedido a partir del carrito + dirección exacta del envío."""
+    """Input para generar el pedido a partir del carrito + dirección exacta de envío."""
     vendedor_id = serializers.IntegerField()
     tipo_entrega = serializers.ChoiceField(choices=['DOMICILIO', 'RETIRO_LOCAL'])
 
     direccion_formateada = serializers.CharField(max_length=255)
     referencia_adicional = serializers.CharField(max_length=255, required=False, allow_blank=True)
     ciudad = serializers.CharField(max_length=100)
-    latitud = serializers.DecimalField(max_digits=10, decimal_places=7)
-    longitud = serializers.DecimalField(max_digits=10, decimal_places=7)
-    place_id = serializers.CharField(max_length=150, required=False, allow_blank=True)
 
 
 class DefinirCostoEnvioSerializer(serializers.Serializer):

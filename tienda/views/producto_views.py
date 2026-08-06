@@ -4,11 +4,10 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from tienda.filters import ProductoFilter
-from tienda.models import Categoria, FotoProducto, Marca, Producto, Promocion, Talla, VarianteProducto
+from tienda.models import Categoria, Marca, Producto, Promocion, Talla, VarianteProducto
 from tienda.permissions import SoloLecturaOAdministrador
 from tienda.serializers.producto_serializers import (
     CategoriaSerializer,
-    FotoProductoSerializer,
     MarcaSerializer,
     ProductoDetalleSerializer,
     ProductoListaSerializer,
@@ -39,7 +38,7 @@ class TallaViewSet(viewsets.ModelViewSet):
 
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.filter(activo=True).select_related('marca', 'categoria').prefetch_related(
-        'fotos', 'variantes', 'promociones'
+        'imagenes', 'variantes', 'promociones'
     )
     permission_classes = [SoloLecturaOAdministrador]
     filterset_class = ProductoFilter
@@ -57,15 +56,6 @@ class VarianteProductoViewSet(viewsets.ModelViewSet):
     serializer_class = VarianteProductoSerializer
     permission_classes = [SoloLecturaOAdministrador]
     filterset_fields = ['producto', 'talla']
-
-
-class FotoProductoViewSet(viewsets.ModelViewSet):
-    """El archivo se sube directo (multipart) y queda alojado en Cloudinary, nunca por URL manual."""
-    queryset = FotoProducto.objects.all()
-    serializer_class = FotoProductoSerializer
-    permission_classes = [SoloLecturaOAdministrador]
-    parser_classes = [MultiPartParser, FormParser]
-    filterset_fields = ['producto']
 
 
 class PromocionViewSet(viewsets.ModelViewSet):

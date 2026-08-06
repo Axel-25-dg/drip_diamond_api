@@ -28,8 +28,8 @@ def crear_pedido_desde_carrito(usuario, vendedor, tipo_entrega, direccion_data):
     una venta confirmada — el equipo debe contactar al cliente después).
 
     direccion_data: dict con direccion_formateada, referencia_adicional,
-    ciudad, latitud, longitud, place_id (ya resueltos por Google Maps
-    en el frontend o vía tienda/services/google_maps_service.py).
+    ciudad, latitud, longitud, place_id. Estos datos se envían desde el
+    frontend como la dirección exacta de envío y sus detalles.
     """
     from tienda.models import Carrito, DetallePedido, DireccionEnvioPedido, EstadoPedido, Pedido
 

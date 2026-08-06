@@ -21,7 +21,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'primer_nombre', 'segundo_nombre',
             'primer_apellido', 'segundo_apellido', 'nombre_completo',
-            'rol', 'cedula', 'telefono', 'direccion_referencial',
+            'rol', 'telefono', 'direccion_referencial',
             'doble_factor_activo', 'perfil_vendedor', 'creado_en',
         ]
         read_only_fields = ['id', 'rol', 'creado_en']
@@ -45,7 +45,7 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = [
             'username', 'email', 'password', 'primer_nombre', 'segundo_nombre',
-            'primer_apellido', 'segundo_apellido', 'telefono', 'direccion_referencial', 'cedula',
+            'primer_apellido', 'segundo_apellido', 'telefono', 'direccion_referencial',
         ]
 
     def validate_username(self, value):
