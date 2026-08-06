@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from tienda.models import (
+    CampanaEmail,
     Carrito,
     Categoria,
     ComisionVenta,
@@ -110,3 +111,12 @@ admin.site.register(LibroVentas)
 admin.site.register(ReporteSRI)
 admin.site.register(Notificacion)
 admin.site.register(ImagenAdjunta)
+
+
+@admin.register(CampanaEmail)
+class CampanaEmailAdmin(admin.ModelAdmin):
+    list_display = ['id', 'titulo', 'segmento', 'estado', 'total_destinatarios', 'total_enviados', 'total_fallidos', 'creada_por', 'creada_en']
+    list_filter = ['estado', 'segmento']
+    search_fields = ['titulo', 'asunto']
+    readonly_fields = ['total_destinatarios', 'total_enviados', 'total_fallidos', 'creada_en', 'enviada_en']
+
