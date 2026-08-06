@@ -1,6 +1,108 @@
-{% extends "emails/base_email.html" %}
-{% block encabezado %}¡Nueva promoción! 🔥{% endblock %}
+{% extends 'emails/base_email.html' %}
+
+{% block titulo %}¡Oferta especial! {{ producto.nombre }} — Drip Diamond{% endblock %}
+
+{% block preheader %}{{ producto.nombre }} ahora a ${{ promocion.precio_promocional }}. ¡Solo por tiempo limitado!{% endblock %}
+
+{% block encabezado %}Oferta exclusiva para ti 🔥{% endblock %}
+
 {% block contenido %}
-<p>{{ producto.nombre }} ahora a <strong>${{ promocion.precio_promocional }}</strong>.</p>
-<p>Válido hasta {{ promocion.fecha_fin|date:"d/m/Y" }}.</p>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  Tenemos una oferta especial en <strong style="color:#a855f7;">Drip Diamond</strong>
+  que no te puedes perder. ¡Solo por tiempo limitado! ⏰
+</p>
+
+<!-- Product promo card -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:12px;margin:0 0 28px 0;overflow:hidden;">
+
+  <!-- Promo badge -->
+  <tr>
+    <td style="background:linear-gradient(135deg,#7c1a1a,#a83232);padding:10px 24px;text-align:center;">
+      <p style="margin:0;font-size:11px;font-weight:800;color:#fca5a5;letter-spacing:2px;text-transform:uppercase;">
+        🔥 Oferta por tiempo limitado
+      </p>
+    </td>
+  </tr>
+
+  <!-- Product details -->
+  <tr>
+    <td style="padding:24px;">
+      <p style="margin:0 0 4px 0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        {{ producto.marca|default:"Drip Diamond" }}
+      </p>
+      <p style="margin:0 0 20px 0;font-size:20px;font-weight:800;color:#f0eeff;">
+        {{ producto.nombre }}
+      </p>
+
+      {% if producto.descripcion %}
+      <p style="margin:0 0 20px 0;font-size:14px;color:#b0a8c8;line-height:1.6;">
+        {{ producto.descripcion|truncatechars:150 }}
+      </p>
+      {% endif %}
+
+      <!-- Price display -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+        style="border-collapse:collapse;border-top:1px solid #2a2a3e;padding-top:16px;">
+        <tr>
+          <td style="padding-top:16px;">
+            {% if producto.precio_base %}
+            <p style="margin:0 0 4px 0;font-size:13px;color:#5a527a;text-decoration:line-through;">
+              Antes: ${{ producto.precio_base }}
+            </p>
+            {% endif %}
+            <p style="margin:0;font-size:28px;font-weight:900;color:#f87171;">
+              Ahora: ${{ promocion.precio_promocional }}
+            </p>
+            {% if producto.precio_base and promocion.precio_promocional %}
+            <p style="margin:4px 0 0 0;font-size:12px;color:#f87171;font-weight:700;">
+              💰 Ahorro significativo con esta oferta exclusiva
+            </p>
+            {% endif %}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- CTA Button -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;margin:0 auto 8px auto;width:100%;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+                   href="{{ producto_url|default:'https://dripdiamond.ec/tienda' }}"
+                   style="height:48px;v-text-anchor:middle;width:220px;"
+                   arcsize="18%" stroke="f" fillcolor="#dc2626">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">
+          Ver oferta ahora
+        </center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-->
+      <a href="{{ producto_url|default:'https://dripdiamond.ec/tienda' }}"
+         style="display:inline-block;background:linear-gradient(135deg,#dc2626,#f87171);
+                color:#ffffff;padding:14px 32px;text-decoration:none;font-weight:700;
+                font-size:15px;border-radius:8px;letter-spacing:0.5px;">
+        Ver oferta ahora &rarr;
+      </a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
+
+{% if promocion.fecha_fin %}
+<p style="margin:16px 0 0 0;font-size:12px;color:#5a527a;text-align:center;">
+  ⏱️ Oferta válida hasta: <strong style="color:#7c6fa0;">{{ promocion.fecha_fin|date:"d/m/Y" }}</strong>
+</p>
+{% endif %}
+
 {% endblock %}

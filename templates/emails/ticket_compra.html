@@ -1,9 +1,114 @@
-{% extends "emails/base_email.html" %}
-{% block encabezado %}Ticket de compra — Pedido #{{ pedido.id }}{% endblock %}
+{% extends 'emails/base_email.html' %}
+
+{% block titulo %}Ticket de compra #{{ pedido.id }} — Drip Diamond{% endblock %}
+
+{% block preheader %}Ticket de compra de tu pedido #{{ pedido.id }} por ${{ pedido.total }}.{% endblock %}
+
+{% block encabezado %}Ticket de compra 🧾{% endblock %}
+
 {% block contenido %}
-<table style="width:100%;border-collapse:collapse;">
-  <tr><td style="padding:4px 0;">Subtotal</td><td style="text-align:right;">${{ pedido.subtotal }}</td></tr>
-  <tr><td style="padding:4px 0;">Envío</td><td style="text-align:right;">${{ pedido.costo_envio }}</td></tr>
-  <tr><td style="padding:4px 0;font-weight:bold;">Total</td><td style="text-align:right;font-weight:bold;">${{ pedido.total }}</td></tr>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  Aquí tienes el ticket de tu compra en <strong style="color:#a855f7;">Drip Diamond</strong>.
+  Guárdalo como comprobante de tu pedido.
+</p>
+
+<!-- Ticket card -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:12px;margin:0 0 24px 0;overflow:hidden;">
+
+  <!-- Ticket header -->
+  <tr>
+    <td style="background:linear-gradient(135deg,#1a0a2e,#0d1a2e);padding:16px 24px;border-bottom:1px solid #2a2a3e;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>
+          <td>
+            <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+              Pedido
+            </p>
+            <p style="margin:4px 0 0 0;font-size:20px;font-weight:800;color:#a855f7;">#{{ pedido.id }}</p>
+          </td>
+          <td align="right">
+            <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+              Estado
+            </p>
+            <p style="margin:4px 0 0 0;font-size:14px;font-weight:700;color:#10b981;">
+              {{ pedido.get_estado_display|default:pedido.estado }}
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Products -->
+  {% if pedido.detalles.all %}
+  <tr>
+    <td style="padding:16px 24px;border-bottom:1px solid #2a2a3e;">
+      <p style="margin:0 0 12px 0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        Productos
+      </p>
+      {% for detalle in pedido.detalles.all %}
+      {% if not forloop.last %}<div style="margin-bottom:10px;">{% endif %}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+        style="border-collapse:collapse;">
+        <tr>
+          <td>
+            <p style="margin:0;font-size:14px;color:#f0eeff;font-weight:600;">
+              {{ detalle.variante_producto.producto.nombre }}
+            </p>
+            <p style="margin:2px 0 0 0;font-size:12px;color:#7c6fa0;">
+              Talla {{ detalle.variante_producto.talla }} · {{ detalle.variante_producto.color }} · x{{ detalle.cantidad }}
+            </p>
+          </td>
+          <td align="right" style="white-space:nowrap;">
+            <p style="margin:0;font-size:14px;color:#c8bfe8;font-weight:600;">${{ detalle.subtotal }}</p>
+          </td>
+        </tr>
+      </table>
+      {% if not forloop.last %}</div>{% endif %}
+      {% endfor %}
+    </td>
+  </tr>
+  {% endif %}
+
+  <!-- Totals -->
+  <tr>
+    <td style="padding:16px 24px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>
+          <td style="padding:4px 0;font-size:13px;color:#7c6fa0;">Subtotal</td>
+          <td style="padding:4px 0;font-size:13px;color:#c8bfe8;text-align:right;">${{ pedido.subtotal }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;font-size:13px;color:#7c6fa0;">Envío</td>
+          <td style="padding:4px 0;font-size:13px;color:#c8bfe8;text-align:right;">
+            {% if pedido.costo_envio_definido %}${{ pedido.costo_envio }}{% else %}Por definir{% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding:8px 0;">
+            <div style="height:1px;background:#2a2a3e;"></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;font-size:16px;color:#a855f7;font-weight:700;">Total</td>
+          <td style="padding:4px 0;font-size:20px;color:#a855f7;font-weight:900;text-align:right;">
+            ${{ pedido.total }}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
 </table>
+
+<p style="margin:0;font-size:13px;color:#5a527a;">
+  Conserva este correo como comprobante de tu compra.
+  Ante cualquier inconveniente, contáctanos respondiendo a este mensaje.
+</p>
+
 {% endblock %}

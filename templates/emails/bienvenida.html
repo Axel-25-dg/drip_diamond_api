@@ -1,9 +1,77 @@
 {% extends 'emails/base_email.html' %}
-{% block titulo %}¡Bienvenido a Zapatillas EC!{% endblock %}
-{% block encabezado %}¡Tu cuenta ha sido creada con éxito!{% endblock %}
+
+{% block titulo %}¡Bienvenido a Drip Diamond!{% endblock %}
+
+{% block preheader %}Tu cuenta {{ usuario.username }} ya está activa. Explora los últimos drops.{% endblock %}
+
+{% block encabezado %}¡Tu cuenta está lista! 🔥{% endblock %}
+
 {% block contenido %}
-<p>Hola {{ usuario.primer_nombre }},</p>
-<p>Bienvenido a <strong>Zapatillas EC</strong>. Nos alegra tenerte con nosotros.</p>
-<p>Tu nombre de usuario registrado es: <strong>{{ usuario.username }}</strong></p>
-<p>Ya puedes explorar nuestro catálogo y realizar tus compras.</p>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  Bienvenido a <strong style="color:#a855f7;">Drip Diamond</strong> — el destino de
+  sneakers premium en Ecuador. Estamos emocionados de tenerte en la comunidad.
+</p>
+
+<!-- Info card -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 28px 0;">
+  <tr>
+    <td style="width:4px;background:linear-gradient(180deg,#7c3aed,#a855f7);border-radius:10px 0 0 10px;">&nbsp;</td>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 4px 0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        Tu cuenta registrada
+      </p>
+      <p style="margin:0 0 2px 0;font-size:17px;font-weight:700;color:#f0eeff;word-break:break-all;">
+        {{ usuario.username }}
+      </p>
+      {% if usuario.email %}
+      <p style="margin:0;font-size:13px;color:#7c6fa0;word-break:break-all;">{{ usuario.email }}</p>
+      {% endif %}
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 28px 0;color:#b0a8c8;">
+  Ya puedes explorar toda la colección, descubrir los últimos lanzamientos y
+  realizar tus compras de forma rápida y segura.
+</p>
+
+<!-- CTA Button -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:0 auto 8px auto;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+                   href="{{ catalogo_url|default:'https://dripdiamond.ec/tienda' }}"
+                   style="height:48px;v-text-anchor:middle;width:220px;"
+                   arcsize="18%" stroke="f" fillcolor="#7c3aed">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">
+          Explorar catálogo
+        </center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-->
+      <a href="{{ catalogo_url|default:'https://dripdiamond.ec/tienda' }}"
+         style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#ffffff;
+                padding:14px 32px;text-decoration:none;font-weight:700;font-size:15px;
+                border-radius:8px;letter-spacing:0.5px;">
+        Explorar catálogo &rarr;
+      </a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
+
+<p style="margin:12px 0 0 0;font-size:11px;color:#5a527a;text-align:center;">
+  Si el botón no funciona:
+  <a href="{{ catalogo_url|default:'https://dripdiamond.ec/tienda' }}"
+     style="color:#7c6fa0;word-break:break-all;">{{ catalogo_url|default:'https://dripdiamond.ec/tienda' }}</a>
+</p>
+
 {% endblock %}

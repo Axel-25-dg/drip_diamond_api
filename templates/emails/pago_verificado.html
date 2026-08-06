@@ -1,6 +1,62 @@
-{% extends "emails/base_email.html" %}
-{% block encabezado %}Pago verificado ✅{% endblock %}
+{% extends 'emails/base_email.html' %}
+
+{% block titulo %}Pago aprobado #{{ pedido.id }} — Drip Diamond{% endblock %}
+
+{% block preheader %}¡Tu pago fue verificado! Ya estamos preparando tu pedido #{{ pedido.id }}.{% endblock %}
+
+{% block encabezado %}¡Pago aprobado! 🎉{% endblock %}
+
 {% block contenido %}
-<p>Hola {{ pedido.usuario.primer_nombre }},</p>
-<p>Tu pago del pedido <strong>#{{ pedido.id }}</strong> fue verificado. Ya estamos preparando tus zapatillas.</p>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  ¡Excelentes noticias! Tu pago del pedido
+  <strong style="color:#a855f7;">#{{ pedido.id }}</strong> fue verificado y
+  <strong style="color:#10b981;">aprobado</strong>. Ya estamos preparando tus sneakers. 🔥
+</p>
+
+<!-- Success banner -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;margin:0 0 28px 0;">
+  <tr>
+    <td style="background:linear-gradient(135deg,#052e16,#0a1a10);border:2px solid #10b981;
+               border-radius:12px;padding:24px;text-align:center;">
+      <p style="margin:0 0 4px 0;font-size:36px;">✅</p>
+      <p style="margin:0;font-size:18px;font-weight:800;color:#10b981;text-transform:uppercase;letter-spacing:1px;">
+        Pago Verificado
+      </p>
+      <p style="margin:8px 0 0 0;font-size:13px;color:#5a8a72;">Pedido #{{ pedido.id }} · ${{ pedido.total }}</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Next steps -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  <tr>
+    <td style="padding:16px 20px;border-bottom:1px solid #2a2a3e;">
+      <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        ¿Qué sigue?
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 10px 0;font-size:14px;color:#b0a8c8;">
+        📦 &nbsp;Estamos preparando y empacando tu pedido con cuidado.
+      </p>
+      <p style="margin:0;font-size:14px;color:#b0a8c8;">
+        🚚 &nbsp;Recibirás otro correo cuando tu pedido sea despachado con el código de rastreo.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0;font-size:13px;color:#5a527a;">
+  Si tienes alguna pregunta sobre tu pedido, contáctanos directamente por este correo o Instagram.
+</p>
+
 {% endblock %}

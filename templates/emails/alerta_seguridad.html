@@ -1,7 +1,79 @@
-{% extends "emails/base_email.html" %}
-{% block encabezado %}Alerta de seguridad ⚠️{% endblock %}
+{% extends 'emails/base_email.html' %}
+
+{% block titulo %}Alerta de seguridad — Drip Diamond{% endblock %}
+
+{% block preheader %}Detectamos actividad inusual en tu cuenta de Drip Diamond. Revisa este aviso.{% endblock %}
+
+{% block encabezado %}Alerta de seguridad 🛡️{% endblock %}
+
 {% block contenido %}
-<p>Hola {{ usuario.primer_nombre }},</p>
-<p>{{ detalle }}</p>
-<p>Si no reconoces esta actividad, contáctanos de inmediato.</p>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  Detectamos actividad inusual en tu cuenta de <strong style="color:#a855f7;">Drip Diamond</strong>.
+  Te informamos de inmediato para que tomes las medidas necesarias.
+</p>
+
+<!-- Alert banner -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;margin:0 0 24px 0;">
+  <tr>
+    <td style="background:#1a0a0a;border:2px solid #ef4444;border-radius:12px;
+               padding:24px;text-align:center;">
+      <p style="margin:0 0 8px 0;font-size:32px;">🚨</p>
+      <p style="margin:0;font-size:16px;font-weight:800;color:#ef4444;
+                text-transform:uppercase;letter-spacing:1px;">
+        Alerta de Seguridad
+      </p>
+    </td>
+  </tr>
+</table>
+
+<!-- Alert detail -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  <tr>
+    <td style="width:4px;background:#ef4444;border-radius:10px 0 0 10px;">&nbsp;</td>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        Detalle del evento
+      </p>
+      <p style="margin:0;font-size:14px;color:#f0eeff;">{{ detalle }}</p>
+    </td>
+  </tr>
+</table>
+
+<!-- What to do -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  <tr>
+    <td style="padding:16px 20px;border-bottom:1px solid #2a2a3e;">
+      <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        ¿Qué debes hacer?
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 8px 0;font-size:14px;color:#b0a8c8;">
+        🔐 Si <strong style="color:#f0eeff;">reconoces esta actividad</strong>, no necesitas hacer nada.
+      </p>
+      <p style="margin:0 0 8px 0;font-size:14px;color:#b0a8c8;">
+        ⚠️ Si <strong style="color:#f87171;">NO reconoces esta actividad</strong>, cambia tu contraseña de inmediato.
+      </p>
+      <p style="margin:0;font-size:14px;color:#b0a8c8;">
+        📬 Responde a este correo si necesitas ayuda de nuestro equipo de soporte.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0;font-size:13px;color:#5a527a;">
+  En <strong style="color:#7c6fa0;">Drip Diamond</strong> jamás te pediremos tu contraseña
+  por correo, WhatsApp o redes sociales.
+</p>
+
 {% endblock %}

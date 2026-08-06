@@ -1,11 +1,57 @@
 {% extends 'emails/base_email.html' %}
-{% block titulo %}Código de Recuperación - Zapatillas EC{% endblock %}
-{% block encabezado %}Código de Verificación OTP{% endblock %}
+
+{% block titulo %}Código de verificación — Drip Diamond{% endblock %}
+
+{% block preheader %}Tu código OTP de 6 dígitos para restablecer tu contraseña. Válido por 10 minutos.{% endblock %}
+
+{% block encabezado %}Código de verificación 🔐{% endblock %}
+
 {% block contenido %}
-<p>Hola {{ usuario.primer_nombre }},</p>
-<p>Tu código de 6 dígitos para restablecer tu contraseña es:</p>
-<div style="font-size:28px; font-weight:bold; letter-spacing:4px; color:#2563eb; background:#f3f4f6; padding:12px; text-align:center; border-radius:6px; margin:16px 0;">
-    {{ codigo }}
-</div>
-<p>Este código vencerá en <strong>10 minutos</strong>. Si no solicitaste este cambio, ignora este mensaje.</p>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  Recibimos una solicitud para restablecer la contraseña de tu cuenta en
+  <strong style="color:#a855f7;">Drip Diamond</strong>. Usa el siguiente código de 6 dígitos:
+</p>
+
+<!-- OTP Code Block -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;margin:0 0 28px 0;">
+  <tr>
+    <td align="center">
+      <div style="display:inline-block;background:#1a1a2e;border:2px solid #7c3aed;
+                  border-radius:12px;padding:24px 40px;">
+        <p style="margin:0 0 8px 0;font-size:11px;color:#7c6fa0;letter-spacing:2px;text-transform:uppercase;">
+          Tu código OTP
+        </p>
+        <p style="margin:0;font-family:'Courier New',monospace;font-size:40px;font-weight:900;
+                  letter-spacing:12px;color:#a855f7;line-height:1;">
+          {{ codigo }}
+        </p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<!-- Warning card -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a120a;border:1px solid #3a2510;border-radius:10px;margin:0 0 20px 0;">
+  <tr>
+    <td style="width:4px;background:#f59e0b;border-radius:10px 0 0 10px;">&nbsp;</td>
+    <td style="padding:14px 18px;">
+      <p style="margin:0;font-size:13px;color:#d4a254;">
+        ⏱️ Este código expira en <strong>10 minutos</strong> y solo puede usarse una vez.
+        Máximo <strong>5 intentos</strong> de verificación.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0;font-size:13px;color:#5a527a;">
+  Si no solicitaste este código, puedes ignorar este correo. Tu cuenta permanece segura.
+</p>
+
 {% endblock %}

@@ -1,6 +1,72 @@
-{% extends "emails/base_email.html" %}
-{% block encabezado %}Tu comprobante fue rechazado{% endblock %}
+{% extends 'emails/base_email.html' %}
+
+{% block titulo %}Comprobante rechazado #{{ pedido.id }} — Drip Diamond{% endblock %}
+
+{% block preheader %}Tu comprobante del pedido #{{ pedido.id }} no pudo ser verificado. Sube uno nuevo.{% endblock %}
+
+{% block encabezado %}Comprobante rechazado ⚠️{% endblock %}
+
 {% block contenido %}
-<p>Hola {{ pedido.usuario.primer_nombre }},</p>
-<p>No pudimos verificar el comprobante de tu pedido <strong>#{{ pedido.id }}</strong>. Por favor vuelve a subirlo.</p>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  Lamentablemente el comprobante de pago de tu pedido
+  <strong style="color:#a855f7;">#{{ pedido.id }}</strong>
+  <strong style="color:#ef4444;">no pudo ser verificado</strong> por nuestro equipo.
+</p>
+
+<!-- Rejected banner -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;margin:0 0 28px 0;">
+  <tr>
+    <td style="background:#1a0a0a;border:2px solid #ef4444;border-radius:12px;padding:24px;text-align:center;">
+      <p style="margin:0 0 4px 0;font-size:36px;">❌</p>
+      <p style="margin:0;font-size:18px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:1px;">
+        Comprobante No Válido
+      </p>
+      <p style="margin:8px 0 0 0;font-size:13px;color:#8a4a4a;">Pedido #{{ pedido.id }}</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Reasons card -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  <tr>
+    <td style="padding:16px 20px;border-bottom:1px solid #2a2a3e;">
+      <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        Posibles razones
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 8px 0;font-size:14px;color:#b0a8c8;">• La imagen no muestra el monto correcto.</p>
+      <p style="margin:0 0 8px 0;font-size:14px;color:#b0a8c8;">• El comprobante está cortado o es ilegible.</p>
+      <p style="margin:0 0 8px 0;font-size:14px;color:#b0a8c8;">• La transferencia no corresponde al pedido.</p>
+      <p style="margin:0;font-size:14px;color:#b0a8c8;">• La cuenta de destino no es la correcta.</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Warning info -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a0f00;border:1px solid #3a2a00;border-radius:10px;margin:0 0 20px 0;">
+  <tr>
+    <td style="width:4px;background:#f59e0b;border-radius:10px 0 0 10px;">&nbsp;</td>
+    <td style="padding:14px 18px;">
+      <p style="margin:0;font-size:13px;color:#d4a254;">
+        📤 Sube nuevamente tu comprobante desde la app o plataforma web para que podamos procesarlo.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0;font-size:13px;color:#5a527a;">
+  Si crees que hay un error, responde a este correo y con gusto lo revisamos.
+</p>
+
 {% endblock %}

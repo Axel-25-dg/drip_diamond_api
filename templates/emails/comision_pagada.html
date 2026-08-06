@@ -1,7 +1,88 @@
-{% extends "emails/base_email.html" %}
-{% block encabezado %}Tu comisión fue pagada{% endblock %}
+{% extends 'emails/base_email.html' %}
+
+{% block titulo %}Comisión pagada — Drip Diamond{% endblock %}
+
+{% block preheader %}Tu comisión de {{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }} por ${{ liquidacion.total_comisiones }} fue transferida.{% endblock %}
+
+{% block encabezado %}¡Comisión pagada! 💰{% endblock %}
+
 {% block contenido %}
-<p>Hola {{ liquidacion.vendedor.primer_nombre }},</p>
-<p>Se transfirió tu comisión del periodo {{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }} por ${{ liquidacion.total_comisiones }} ({{ liquidacion.total_pares }} pares vendidos).</p>
-<p>El comprobante está disponible en tu panel de vendedor.</p>
+
+<p style="margin:0 0 20px 0;color:#c8bfe8;">
+  Hola <strong style="color:#f0eeff;">{{ liquidacion.vendedor.primer_nombre|default:liquidacion.vendedor.first_name|default:liquidacion.vendedor.username }}</strong>,
+</p>
+
+<p style="margin:0 0 24px 0;color:#b0a8c8;">
+  ¡Buenas noticias! Tu liquidación de comisiones de
+  <strong style="color:#a855f7;">{{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }}</strong>
+  en <strong style="color:#a855f7;">Drip Diamond</strong> fue marcada como pagada. 🎉
+</p>
+
+<!-- Payment banner -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;margin:0 0 28px 0;">
+  <tr>
+    <td style="background:linear-gradient(135deg,#0a1a0a,#0a1a2e);border:2px solid #10b981;
+               border-radius:12px;padding:28px;text-align:center;">
+      <p style="margin:0 0 8px 0;font-size:36px;">💸</p>
+      <p style="margin:0 0 6px 0;font-size:13px;color:#5a8a72;letter-spacing:1.5px;text-transform:uppercase;">
+        Total comisiones pagadas
+      </p>
+      <p style="margin:0;font-size:36px;font-weight:900;color:#10b981;">${{ liquidacion.total_comisiones }}</p>
+      <p style="margin:8px 0 0 0;font-size:13px;color:#5a8a72;">
+        Periodo: {{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }} ·
+        {{ liquidacion.total_pares }} par{% if liquidacion.total_pares != 1 %}es{% endif %}
+      </p>
+    </td>
+  </tr>
+</table>
+
+<!-- Summary card -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  <tr>
+    <td style="padding:16px 20px;border-bottom:1px solid #2a2a3e;">
+      <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+        Detalle de liquidación
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:16px 20px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>
+          <td style="padding:4px 0;font-size:14px;color:#7c6fa0;">Periodo</td>
+          <td style="padding:4px 0;font-size:14px;color:#f0eeff;text-align:right;font-weight:600;">
+            {{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;font-size:14px;color:#7c6fa0;">Pares vendidos</td>
+          <td style="padding:4px 0;font-size:14px;color:#c8bfe8;text-align:right;">{{ liquidacion.total_pares }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;font-size:14px;color:#7c6fa0;">Comisión por par</td>
+          <td style="padding:4px 0;font-size:14px;color:#c8bfe8;text-align:right;">$4.00 USD</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;font-size:16px;color:#10b981;font-weight:700;">Total pagado</td>
+          <td style="padding:4px 0;font-size:18px;color:#10b981;font-weight:900;text-align:right;">
+            ${{ liquidacion.total_comisiones }}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+{% if liquidacion.fecha_pago %}
+<p style="margin:0 0 12px 0;font-size:13px;color:#5a527a;">
+  Fecha de pago registrada: <strong style="color:#7c6fa0;">{{ liquidacion.fecha_pago|date:"d/m/Y H:i" }}</strong>
+</p>
+{% endif %}
+
+<p style="margin:0;font-size:13px;color:#5a527a;">
+  Gracias por formar parte del equipo <strong style="color:#7c6fa0;">Drip Diamond</strong>. ¡Sigue así! 💎
+</p>
+
 {% endblock %}
