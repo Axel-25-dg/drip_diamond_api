@@ -119,4 +119,19 @@ class CampanaEmailAdmin(admin.ModelAdmin):
     list_filter = ['estado', 'segmento']
     search_fields = ['titulo', 'asunto']
     readonly_fields = ['total_destinatarios', 'total_enviados', 'total_fallidos', 'creada_en', 'enviada_en']
+    actions = ['enviar_campanas_accion']
+
+    @admin.action(description='🚀 Enviar campaña(s) masiva(s) seleccionada(s)')
+    def enviar_campanas_accion(self, request, queryset):
+        from tienda.services.campana_service import enviar_campana
+        from tienda.models import EstadoCampana
+
+        procesados = 0
+        for campana in queryset:
+            if campana.estado in (EstadoCampana.BORRADOR, EstadoCampana.FALLIDO):
+                res = enviar_campana(campana.id)
+                if 'error' not in res:
+                    procesados += 1
+        self.message_user(request, f'Se ejecutó el envío de {procesados} campaña(s) masiva(s).')
+
 
