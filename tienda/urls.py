@@ -33,6 +33,7 @@ from tienda.views.usuario_views import (
     UsuarioViewSet,
     VerificarUsernameView,
 )
+from tienda.views.campana_views import CampanaEmailViewSet
 from tienda.views.venta_views import ComisionVentaViewSet, LiquidacionMensualViewSet
 
 router = DefaultRouter()
@@ -54,6 +55,7 @@ router.register('retenciones', RetencionImpuestoViewSet, basename='retencion')
 router.register('libro-ventas', LibroVentasViewSet, basename='libro-ventas')
 router.register('reportes-sri', ReporteSRIViewSet, basename='reporte-sri')
 router.register('notificaciones', NotificacionViewSet, basename='notificacion')
+router.register('campanas', CampanaEmailViewSet, basename='campana')
 
 urlpatterns = [
     path('imagenes/subir/', SubirImagenView.as_view(), name='subir-imagen'),
