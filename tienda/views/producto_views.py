@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.response import Response
 
+from core.responses import success_response
 from tienda.filters import ProductoFilter
 from tienda.models import Categoria, Marca, Producto, Promocion, Talla, VarianteProducto
 from tienda.permissions import SoloLecturaOAdministrador
@@ -74,4 +74,7 @@ class PromocionViewSet(viewsets.ModelViewSet):
         clientes = Usuario.objects.filter(rol=Rol.CLIENTE)
         for cliente in clientes:
             notificar_promocion(cliente, promocion.producto, promocion)
-        return Response({'detail': f'Promoción notificada a {clientes.count()} clientes.'})
+        return success_response(
+            data={'promocion_id': promocion.id, 'total_notificados': clientes.count()},
+            message=f'Promoción notificada exitosamente a {clientes.count()} clientes via Resend.',
+        )

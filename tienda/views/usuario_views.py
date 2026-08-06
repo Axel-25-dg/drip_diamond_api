@@ -1,7 +1,8 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.responses import success_response
 from tienda.models import Rol, Usuario
 from tienda.permissions import EsAdministrador
 from tienda.serializers.usuario_serializers import (
@@ -10,12 +11,25 @@ from tienda.serializers.usuario_serializers import (
     RegistroClienteSerializer,
     UsuarioSerializer,
 )
+from tienda.services.email_service import notificar_bienvenida
 
 
 class RegistroClienteView(generics.CreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = RegistroClienteSerializer
     permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        usuario = serializer.save()
+        notificar_bienvenida(usuario)
+        return success_response(
+            data=UsuarioSerializer(usuario).data,
+            message='Usuario registrado exitosamente. Se ha enviado un correo de bienvenida.',
+            status=status.HTTP_201_CREATED,
+        )
+
 
 
 class VerificarUsernameView(generics.GenericAPIView):
@@ -26,7 +40,11 @@ class VerificarUsernameView(generics.GenericAPIView):
         from tienda.services.username_service import username_disponible
 
         username = request.query_params.get('username', '')
-        return Response({'disponible': username_disponible(username)})
+        disponible = username_disponible(username)
+        return success_response(
+            data={'disponible': disponible, 'username': username},
+            message='Verificación de username realizada.',
+        )
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
@@ -39,11 +57,11 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get', 'patch'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
         if request.method == 'GET':
-            return Response(UsuarioSerializer(request.user).data)
+            return success_response(data=UsuarioSerializer(request.user).data)
         serializer = UsuarioSerializer(request.user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return success_response(data=serializer.data, message='Perfil actualizado exitosamente.')
 
 
 class CrearVendedorView(generics.CreateAPIView):
@@ -51,11 +69,31 @@ class CrearVendedorView(generics.CreateAPIView):
     serializer_class = CrearVendedorSerializer
     permission_classes = [EsAdministrador]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        vendedor = serializer.save()
+        return success_response(
+            data=UsuarioSerializer(vendedor).data,
+            message='Vendedor creado correctamente.',
+            status=201,
+        )
+
 
 class CrearContadorView(generics.CreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = CrearContadorSerializer
     permission_classes = [EsAdministrador]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        contador = serializer.save()
+        return success_response(
+            data=UsuarioSerializer(contador).data,
+            message='Contador creado correctamente.',
+            status=201,
+        )
 
 
 class ListaVendedoresActivosView(generics.ListAPIView):
@@ -63,3 +101,8 @@ class ListaVendedoresActivosView(generics.ListAPIView):
     queryset = Usuario.objects.filter(rol=Rol.VENDEDOR, perfil_vendedor__activo=True)
     serializer_class = UsuarioSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return success_response(data=serializer.data, message='Lista de vendedores activos retrieved.')

@@ -17,9 +17,9 @@ class PedidoNoEnviadoError(Exception):
 def confirmar_entrega_y_generar_comision(pedido, contador):
     """
     ÚNICO punto del sistema donde se genera la comisión del vendedor.
-    Se llama cuando el contador confirma, desde el chat en tiempo real del
-    pedido, que el cliente ya recibió su paquete. Antes de esto no existe
-    ningún registro de comisión para ese pedido.
+    Si existe un vendedor asignado, calcula la comisión fija de 4 USD por par.
+    Si el cliente seleccionó "Ningún vendedor" (vendedor is None), la comisión es 0 USD
+    y no se crea ningún registro de comisión.
     """
     from tienda.models import ComisionVenta, EstadoPedido
     from tienda.services.email_service import notificar_pedido_entregado
@@ -31,20 +31,27 @@ def confirmar_entrega_y_generar_comision(pedido, contador):
     if pedido.estado != EstadoPedido.ENVIADO:
         raise PedidoNoEnviadoError('El pedido debe estar en estado ENVIADO antes de confirmar la entrega.')
 
-    pares = total_pares(pedido)
-    monto_por_par = Decimal(str(settings.COMISION_FIJA_POR_PAR))
-    monto_total = monto_por_par * pares
+    comision = None
 
-    comision = ComisionVenta.objects.create(
-        pedido=pedido,
-        vendedor=pedido.vendedor,
-        cantidad_pares=pares,
-        monto_por_par=monto_por_par,
-        monto=monto_total,
-        confirmada_por=contador,
+    if pedido.vendedor:
+        pares = total_pares(pedido)
+        monto_por_par = Decimal(str(settings.COMISION_FIJA_POR_PAR))
+        monto_total = monto_por_par * pares
+
+        comision = ComisionVenta.objects.create(
+            pedido=pedido,
+            vendedor=pedido.vendedor,
+            cantidad_pares=pares,
+            monto_por_par=monto_por_par,
+            monto=monto_total,
+            confirmada_por=contador,
+        )
+
+    pedido.cambiar_estado(
+        EstadoPedido.ENTREGADO,
+        comentario='Entrega confirmada por el contador / Venta finalizada',
+        usuario_responsable=contador,
     )
-
-    pedido.cambiar_estado(EstadoPedido.ENTREGADO, comentario='Entrega confirmada por el contador', usuario_responsable=contador)
     notificar_pedido_entregado(pedido)
     return comision
 
@@ -69,8 +76,8 @@ def generar_liquidacion_mensual(vendedor, anio, mes):
 
 def marcar_liquidacion_pagada(liquidacion, contador, comprobante_pago):
     """
-    Segunda y última acción manual del contador: marcar la liquidación
-    como pagada una vez que el administrador ya hizo la transferencia.
+    Acción del contador: marcar la liquidación como pagada una vez que
+    se realiza la transferencia.
     """
     from tienda.services.email_service import notificar_comision_pagada
 

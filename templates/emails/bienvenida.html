@@ -1,0 +1,9 @@
+{% extends 'emails/base_email.html' %}
+{% block titulo %}¡Bienvenido a Zapatillas EC!{% endblock %}
+{% block encabezado %}¡Tu cuenta ha sido creada con éxito!{% endblock %}
+{% block contenido %}
+<p>Hola {{ usuario.primer_nombre }},</p>
+<p>Bienvenido a <strong>Zapatillas EC</strong>. Nos alegra tenerte con nosotros.</p>
+<p>Tu nombre de usuario registrado es: <strong>{{ usuario.username }}</strong></p>
+<p>Ya puedes explorar nuestro catálogo y realizar tus compras.</p>
+{% endblock %}

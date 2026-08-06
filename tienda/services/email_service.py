@@ -19,6 +19,22 @@ def _enviar(usuario, tipo, asunto, mensaje_corto, template, contexto):
     return notificacion
 
 
+def notificar_bienvenida(usuario):
+    return _enviar(
+        usuario, 'BIENVENIDA', '¡Bienvenido a Zapatillas EC!',
+        'Tu cuenta ha sido creada exitosamente.',
+        'emails/bienvenida.html', {'usuario': usuario},
+    )
+
+
+def notificar_codigo_otp(usuario, codigo):
+    return _enviar(
+        usuario, 'RECUPERAR_PASSWORD', 'Código de verificación OTP - Zapatillas EC',
+        f'Tu código de recuperación es: {codigo}',
+        'emails/codigo_otp.html', {'usuario': usuario, 'codigo': codigo},
+    )
+
+
 def notificar_solicitud_compra(pedido):
     return _enviar(
         pedido.usuario, 'SOLICITUD_COMPRA', f'Recibimos tu solicitud — Pedido #{pedido.id}',

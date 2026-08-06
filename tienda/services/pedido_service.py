@@ -24,12 +24,7 @@ def _costo_envio_sugerido(ciudad: str, tipo_entrega: str) -> Decimal:
 @transaction.atomic
 def crear_pedido_desde_carrito(usuario, vendedor, tipo_entrega, direccion_data):
     """
-    Convierte el carrito en un Pedido en estado SOLICITADO (todavía no es
-    una venta confirmada — el equipo debe contactar al cliente después).
-
-    direccion_data: dict con direccion_formateada, referencia_adicional,
-    ciudad, latitud, longitud, place_id. Estos datos se envían desde el
-    frontend como la dirección exacta de envío y sus detalles.
+    Convierte el carrito en un Pedido en estado PENDIENTE_DE_PAGO.
     """
     from tienda.models import Carrito, DetallePedido, DireccionEnvioPedido, EstadoPedido, Pedido
 
@@ -55,7 +50,7 @@ def crear_pedido_desde_carrito(usuario, vendedor, tipo_entrega, direccion_data):
         costo_envio=costo_envio,
         costo_envio_definido=costo_envio > 0,
         total=subtotal + costo_envio,
-        estado=EstadoPedido.SOLICITADO,
+        estado=EstadoPedido.PENDIENTE_DE_PAGO,
     )
 
     DireccionEnvioPedido.objects.create(pedido=pedido, **direccion_data)
@@ -73,7 +68,7 @@ def crear_pedido_desde_carrito(usuario, vendedor, tipo_entrega, direccion_data):
         variante.save(update_fields=['stock'])
 
     carrito.items.all().delete()
-    pedido.cambiar_estado(EstadoPedido.SOLICITADO, comentario='Pedido solicitado por el cliente', usuario_responsable=usuario)
+    pedido.cambiar_estado(EstadoPedido.PENDIENTE_DE_PAGO, comentario='Pedido registrado. Pendiente de pago por transferencia.', usuario_responsable=usuario)
     return pedido
 
 

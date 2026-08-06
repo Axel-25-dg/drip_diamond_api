@@ -115,7 +115,13 @@ class SolicitarRecuperacionSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
+class VerificarOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    codigo = serializers.CharField(max_length=6, min_length=6)
+
+
 class ConfirmarRecuperacionSerializer(serializers.Serializer):
-    uid = serializers.CharField()
-    token = serializers.CharField()
+    email = serializers.EmailField()
+    codigo = serializers.CharField(max_length=6, min_length=6)
     nueva_password = serializers.CharField(validators=[validate_password])
+

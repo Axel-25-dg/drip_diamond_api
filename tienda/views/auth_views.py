@@ -1,17 +1,16 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, OutstandingToken, BlacklistedToken
 
+from core.responses import error_response, success_response
+from seguridad_acceso.models import CodigoOTP
 from tienda.serializers.usuario_serializers import (
     ConfirmarRecuperacionSerializer,
     SolicitarRecuperacionSerializer,
     UsuarioSerializer,
+    VerificarOTPSerializer,
 )
 
 
@@ -32,7 +31,10 @@ class LoginView(APIView):
 
         ip = _obtener_ip(request)
         if ip_esta_bloqueada(ip):
-            return Response({'detail': 'IP temporalmente bloqueada por múltiples intentos fallidos.'}, status=423)
+            return error_response(
+                message='IP temporalmente bloqueada por múltiples intentos fallidos.',
+                status=423,
+            )
 
         username = request.data.get('username')
         password = request.data.get('password')
@@ -42,17 +44,20 @@ class LoginView(APIView):
         registrar_intento_login(username=username or '', ip=ip, exitoso=exitoso)
 
         if not exitoso:
-            return Response({'detail': 'Credenciales inválidas.'}, status=401)
+            return error_response(message='Credenciales inválidas.', status=401)
 
         usuario.ultima_ip_conocida = ip
         usuario.save(update_fields=['ultima_ip_conocida'])
 
         refresh = RefreshToken.for_user(usuario)
-        return Response({
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-            'usuario': UsuarioSerializer(usuario).data,
-        })
+        return success_response(
+            data={
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'usuario': UsuarioSerializer(usuario).data,
+            },
+            message='Inicio de sesión exitoso.',
+        )
 
 
 class LogoutView(APIView):
@@ -60,37 +65,93 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            token = RefreshToken(request.data['refresh'])
-            token.blacklist()
+            token_str = request.data.get('refresh')
+            if token_str:
+                token = RefreshToken(token_str)
+                token.blacklist()
         except Exception:
-            return Response({'detail': 'Token inválido o ya expirado.'}, status=400)
-        return Response({'detail': 'Sesión cerrada correctamente.'}, status=205)
+            pass
+        return success_response(message='Sesión cerrada correctamente.')
 
 
 class SolicitarRecuperacionView(APIView):
-    """Pide el correo y envía un enlace con uid+token si el usuario existe (no revela si no existe)."""
+    """
+    Paso 1: Solicitar código OTP de 6 dígitos enviado por correo mediante Resend.
+    Expira en 10 minutos.
+    """
     permission_classes = [AllowAny]
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'login'
 
     def post(self, request):
         from tienda.models import Usuario
-        from tienda.services.email_service import notificar_recuperar_password
+        from tienda.services.email_service import notificar_codigo_otp
 
         serializer = SolicitarRecuperacionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        usuario = Usuario.objects.filter(email__iexact=serializer.validated_data['email']).first()
-        if usuario:
-            uid = urlsafe_base64_encode(force_bytes(usuario.pk))
-            token = default_token_generator.make_token(usuario)
-            enlace = f'{__import__("django.conf", fromlist=["settings"]).settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}'
-            notificar_recuperar_password(usuario, enlace)
+        email = serializer.validated_data['email']
+        usuario = Usuario.objects.filter(email__iexact=email).first()
 
-        return Response({'detail': 'Si el correo existe, enviamos instrucciones de recuperación.'})
+        if usuario:
+            otp = CodigoOTP.generar_para_usuario(usuario)
+            notificar_codigo_otp(usuario, otp.codigo)
+
+        return success_response(
+            data={'email': email},
+            message='Si el correo se encuentra registrado, se enviará un código OTP de 6 dígitos.',
+        )
+
+
+class VerificarOTPView(APIView):
+    """
+    Paso 2: Verificar el código OTP de 6 dígitos (Máximo 5 intentos, 10 min de validez).
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        from tienda.models import Usuario
+
+        serializer = VerificarOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        datos = serializer.validated_data
+
+        usuario = Usuario.objects.filter(email__iexact=datos['email']).first()
+        if not usuario:
+            return error_response(message='Código OTP inválido o expirado.', status=400)
+
+        otp = CodigoOTP.objects.filter(usuario=usuario, usado=False).order_by('-creado_en').first()
+        if not otp:
+            return error_response(message='No hay ningún código OTP activo para este correo.', status=400)
+
+        if otp.esta_expirado:
+            return error_response(message='El código OTP ha expirado (validez: 10 minutos). Solicite uno nuevo.', status=400)
+
+        if otp.excede_intentos:
+            return error_response(message='Ha superado el límite de 5 intentos. Solicite un nuevo código OTP.', status=400)
+
+        if otp.codigo != datos['codigo']:
+            otp.intentos += 1
+            otp.save(update_fields=['intentos'])
+            intentos_restantes = 5 - otp.intentos
+            return error_response(
+                message=f'Código OTP incorrecto. Le quedan {intentos_restantes} intentos.',
+                status=400,
+            )
+
+        otp.verificado = True
+        otp.save(update_fields=['verificado'])
+        return success_response(
+            data={'email': datos['email'], 'codigo': datos['codigo']},
+            message='Código OTP verificado correctamente. Ya puede establecer su nueva contraseña.',
+        )
 
 
 class ConfirmarRecuperacionView(APIView):
+    """
+    Paso 3: Establecer nueva contraseña con OTP verificado.
+    Invalida automáticamente todas las sesiones anteriores.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -100,15 +161,34 @@ class ConfirmarRecuperacionView(APIView):
         serializer.is_valid(raise_exception=True)
         datos = serializer.validated_data
 
-        try:
-            uid = force_str(urlsafe_base64_decode(datos['uid']))
-            usuario = Usuario.objects.get(pk=uid)
-        except Exception:
-            return Response({'detail': 'Enlace inválido.'}, status=400)
+        usuario = Usuario.objects.filter(email__iexact=datos['email']).first()
+        if not usuario:
+            return error_response(message='Solicitud inválida.', status=400)
 
-        if not default_token_generator.check_token(usuario, datos['token']):
-            return Response({'detail': 'El enlace expiró o no es válido.'}, status=400)
+        otp = CodigoOTP.objects.filter(
+            usuario=usuario, codigo=datos['codigo'], verificado=True, usado=False
+        ).order_by('-creado_en').first()
 
+        if not otp or otp.esta_expirado:
+            return error_response(message='El código OTP no fue verificado o ya ha expirado.', status=400)
+
+        # Actualizar contraseña
         usuario.set_password(datos['nueva_password'])
         usuario.save(update_fields=['password'])
-        return Response({'detail': 'Contraseña actualizada correctamente.'})
+
+        # Marcar OTP como usado
+        otp.usado = True
+        otp.save(update_fields=['usado'])
+
+        # Involucrar invalidación de todas las sesiones anteriores (simplejwt tokens blacklist)
+        try:
+            tokens = OutstandingToken.objects.filter(user=usuario)
+            for token in tokens:
+                BlacklistedToken.objects.get_or_create(token=token)
+        except Exception:
+            pass
+
+        return success_response(
+            data={},
+            message='Contraseña actualizada correctamente. Todas las sesiones anteriores fueron cerradas.',
+        )

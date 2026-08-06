@@ -39,12 +39,22 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
+    'drf_spectacular',
 
+    'core',
     'tienda',
     'seguridad_acceso',
 ]
 
 AUTH_USER_MODEL = 'tienda.Usuario'
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -143,6 +153,15 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {'anon': '30/minute', 'user': '120/minute', 'login': '5/minute'},
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Zapatillas EC Enterprise API',
+    'DESCRIPTION': 'Documentación completa del Backend para E-commerce de Zapatillas con Arquitectura Limpia.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 SIMPLE_JWT = {
@@ -177,8 +196,9 @@ LOGIN_BLOQUEO_MINUTOS = 15
 # ------------------------------------------------------------------
 # Negocio
 # ------------------------------------------------------------------
-COMISION_FIJA_POR_PAR = 5.00        # USD, fija por cada par vendido (no %)
+COMISION_FIJA_POR_PAR = 4.00        # USD fija por cada venta completada con vendedor asignado
 IVA_PORCENTAJE = 15                 # % vigente Ecuador — ajustar según normativa actual
+
 
 # ------------------------------------------------------------------
 # Email — TODO el envío de correos va por la API de Resend (sin SMTP)

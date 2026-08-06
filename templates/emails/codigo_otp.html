@@ -1,0 +1,11 @@
+{% extends 'emails/base_email.html' %}
+{% block titulo %}Código de Recuperación - Zapatillas EC{% endblock %}
+{% block encabezado %}Código de Verificación OTP{% endblock %}
+{% block contenido %}
+<p>Hola {{ usuario.primer_nombre }},</p>
+<p>Tu código de 6 dígitos para restablecer tu contraseña es:</p>
+<div style="font-size:28px; font-weight:bold; letter-spacing:4px; color:#2563eb; background:#f3f4f6; padding:12px; text-align:center; border-radius:6px; margin:16px 0;">
+    {{ codigo }}
+</div>
+<p>Este código vencerá en <strong>10 minutos</strong>. Si no solicitaste este cambio, ignora este mensaje.</p>
+{% endblock %}

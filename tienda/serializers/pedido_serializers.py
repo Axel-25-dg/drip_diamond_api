@@ -77,7 +77,7 @@ class PedidoSerializer(serializers.ModelSerializer):
     historial = HistorialEstadoPedidoSerializer(many=True, read_only=True)
     comprobante_pago = ComprobantePagoSerializer(read_only=True)
     direccion_envio = DireccionEnvioPedidoSerializer(read_only=True)
-    vendedor_codigo = serializers.CharField(source='vendedor.perfil_vendedor.codigo_vendedor', read_only=True)
+    vendedor_codigo = serializers.CharField(source='vendedor.perfil_vendedor.codigo_vendedor', read_only=True, default=None)
 
     class Meta:
         model = Pedido
@@ -92,8 +92,8 @@ class PedidoSerializer(serializers.ModelSerializer):
 
 
 class CrearPedidoSerializer(serializers.Serializer):
-    """Input para generar el pedido a partir del carrito + dirección exacta de envío."""
-    vendedor_id = serializers.IntegerField()
+    """Input para generar el pedido a partir del carrito. vendedor_id es opcional (null = Ningún vendedor)."""
+    vendedor_id = serializers.IntegerField(required=False, allow_null=True)
     tipo_entrega = serializers.ChoiceField(choices=['DOMICILIO', 'RETIRO_LOCAL'])
 
     direccion_formateada = serializers.CharField(max_length=255)

@@ -1,5 +1,8 @@
+from datetime import timedelta
+import random
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class SesionUsuario(models.Model):
@@ -71,3 +74,40 @@ class LogAuditoria(models.Model):
 
     def __str__(self):
         return f'{self.usuario} — {self.accion} ({self.fecha:%Y-%m-%d %H:%M})'
+
+
+class CodigoOTP(models.Model):
+    """
+    Código OTP de 6 dígitos para recuperación de contraseña.
+    Expira en 10 minutos. Máximo 5 intentos de verificación.
+    """
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='codigos_otp')
+    codigo = models.CharField(max_length=6)
+    expiracion = models.DateTimeField()
+    intentos = models.PositiveSmallIntegerField(default=0)
+    verificado = models.BooleanField(default=False)
+    usado = models.BooleanField(default=False)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Código OTP'
+        verbose_name_plural = 'Códigos OTP'
+        ordering = ['-creado_en']
+
+    def __str__(self):
+        return f'OTP {self.codigo} para {self.usuario.email}'
+
+    @property
+    def esta_expirado(self) -> bool:
+        return timezone.now() > self.expiracion
+
+    @property
+    def excede_intentos(self) -> bool:
+        return self.intentos >= 5
+
+    @classmethod
+    def generar_para_usuario(cls, usuario):
+        cls.objects.filter(usuario=usuario, usado=False).update(usado=True)
+        codigo = f"{random.randint(100000, 999999)}"
+        expiracion = timezone.now() + timedelta(minutes=10)
+        return cls.objects.create(usuario=usuario, codigo=codigo, expiracion=expiracion)

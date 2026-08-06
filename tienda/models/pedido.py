@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -9,43 +10,57 @@ class TipoEntrega(models.TextChoices):
 
 
 class EstadoPedido(models.TextChoices):
-    SOLICITADO = 'SOLICITADO', 'Compra solicitada'
-    CONTACTADO = 'CONTACTADO', 'Cliente contactado'
-    PAGO_SUBIDO = 'PAGO_SUBIDO', 'Comprobante subido'
-    PAGO_VERIFICADO = 'PAGO_VERIFICADO', 'Pago verificado'
+    CARRITO = 'CARRITO', 'Carrito'
+    PENDIENTE_DE_PAGO = 'PENDIENTE_DE_PAGO', 'Pendiente de pago'
+    COMPROBANTE_ENVIADO = 'COMPROBANTE_ENVIADO', 'Comprobante enviado'
+    PAGO_EN_REVISION = 'PAGO_EN_REVISION', 'Pago en revisión'
+    PAGO_APROBADO = 'PAGO_APROBADO', 'Pago aprobado'
     PAGO_RECHAZADO = 'PAGO_RECHAZADO', 'Pago rechazado'
-    EN_PREPARACION = 'EN_PREPARACION', 'En preparación'
+    PREPARANDO_PEDIDO = 'PREPARANDO_PEDIDO', 'Preparando pedido'
     ENVIADO = 'ENVIADO', 'Enviado'
-    ENTREGADO = 'ENTREGADO', 'Entregado y confirmado'
+    ENTREGADO = 'ENTREGADO', 'Venta finalizada / Entregado'
     CANCELADO = 'CANCELADO', 'Cancelado'
+
+
+TRANSICIONES_VALIDAS = {
+    EstadoPedido.CARRITO: {EstadoPedido.PENDIENTE_DE_PAGO, EstadoPedido.CANCELADO},
+    EstadoPedido.PENDIENTE_DE_PAGO: {EstadoPedido.COMPROBANTE_ENVIADO, EstadoPedido.CANCELADO},
+    EstadoPedido.COMPROBANTE_ENVIADO: {EstadoPedido.PAGO_EN_REVISION, EstadoPedido.PAGO_APROBADO, EstadoPedido.PAGO_RECHAZADO, EstadoPedido.CANCELADO},
+    EstadoPedido.PAGO_EN_REVISION: {EstadoPedido.PAGO_APROBADO, EstadoPedido.PAGO_RECHAZADO, EstadoPedido.CANCELADO},
+    EstadoPedido.PAGO_RECHAZADO: {EstadoPedido.COMPROBANTE_ENVIADO, EstadoPedido.CANCELADO},
+    EstadoPedido.PAGO_APROBADO: {EstadoPedido.PREPARANDO_PEDIDO, EstadoPedido.ENVIADO, EstadoPedido.CANCELADO},
+    EstadoPedido.PREPARANDO_PEDIDO: {EstadoPedido.ENVIADO, EstadoPedido.CANCELADO},
+    EstadoPedido.ENVIADO: {EstadoPedido.ENTREGADO, EstadoPedido.CANCELADO},
+    EstadoPedido.ENTREGADO: set(),
+    EstadoPedido.CANCELADO: set(),
+}
 
 
 class Pedido(models.Model):
     """
-    Eje central. IMPORTANTE: la comisión del vendedor NO se genera aquí ni
-    al verificar el pago — solo se genera cuando el estado pasa a ENTREGADO
-    a través de la confirmación manual del contador (ver services/comision_service.py).
+    Eje central de la venta.
+    Si el vendedor es null ("Ningún vendedor"), la venta NO genera comisión.
+    Si hay un vendedor asignado, se genera la comisión fija de 4 USD únicamente al pasar a ENTREGADO.
     """
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='pedidos')
     vendedor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='ventas_como_vendedor',
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='ventas_como_vendedor',
         limit_choices_to={'rol': 'VENDEDOR'},
-        help_text='Obligatorio: requisito para que se le pueda pagar la comisión',
+        help_text='Vendedor asignado. Si es nulo ("Ningún vendedor"), no genera comisión.',
     )
 
     tipo_entrega = models.CharField(max_length=20, choices=TipoEntrega.choices, default=TipoEntrega.DOMICILIO)
 
-    # Costo de envío: SIEMPRE manual (sin API de paquetería). Lo define el
-    # administrador según distancia/ciudad antes de que el pedido avance.
     costo_envio = models.DecimalField(max_digits=8, decimal_places=2, default=0, validators=[MinValueValidator(0)])
     costo_envio_definido = models.BooleanField(default=False)
 
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
 
-    estado = models.CharField(max_length=20, choices=EstadoPedido.choices, default=EstadoPedido.SOLICITADO)
+    estado = models.CharField(max_length=25, choices=EstadoPedido.choices, default=EstadoPedido.PENDIENTE_DE_PAGO)
 
-    numero_guia = models.CharField(max_length=30, blank=True, help_text='Código informativo enviado por correo, sin integración de paquetería')
+    numero_guia = models.CharField(max_length=30, blank=True, help_text='Código informativo enviado por correo')
 
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
@@ -65,6 +80,13 @@ class Pedido(models.Model):
 
     def cambiar_estado(self, nuevo_estado, comentario='', usuario_responsable=None):
         from tienda.models.historial import HistorialEstadoPedido
+
+        if self.estado != nuevo_estado:
+            permitidos = TRANSICIONES_VALIDAS.get(self.estado, set())
+            if nuevo_estado not in permitidos:
+                raise ValidationError(
+                    f'Transición de estado inválida: de "{self.get_estado_display()}" a "{nuevo_estado}".'
+                )
 
         self.estado = nuevo_estado
         self.save(update_fields=['estado', 'actualizado_en'])

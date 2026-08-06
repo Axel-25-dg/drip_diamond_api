@@ -1,7 +1,7 @@
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 
+from core.responses import success_response
 from tienda.models import Factura, LibroVentas, NotaCredito, Notificacion, ReporteSRI, RetencionImpuesto
 from tienda.permissions import EsAdministradorOContador
 from tienda.serializers.contabilidad_serializers import (
@@ -47,7 +47,11 @@ class LibroVentasViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = CerrarLibroVentasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         reporte = cerrar_libro_ventas_mensual(**serializer.validated_data)
-        return Response(ReporteSRISerializer(reporte).data, status=201)
+        return success_response(
+            data=ReporteSRISerializer(reporte).data,
+            message='Libro de ventas mensual cerrado exitosamente.',
+            status=201,
+        )
 
 
 class ReporteSRIViewSet(viewsets.ReadOnlyModelViewSet):
@@ -68,4 +72,7 @@ class NotificacionViewSet(viewsets.ReadOnlyModelViewSet):
         notificacion = self.get_object()
         notificacion.leida = True
         notificacion.save(update_fields=['leida'])
-        return Response(NotificacionSerializer(notificacion).data)
+        return success_response(
+            data=NotificacionSerializer(notificacion).data,
+            message='Notificación marcada como leída.',
+        )

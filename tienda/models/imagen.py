@@ -8,21 +8,29 @@ from django.db import models
 
 def _ruta_imagen(instance, nombre_archivo):
     """
-    Organiza las imágenes en carpetas por tipo de modelo, ej:
-    media/imagenes/producto/<uuid>.jpg, media/imagenes/marca/<uuid>.png
-    Nombre único con UUID para evitar colisiones/sobrescrituras.
+    Organiza las imágenes en carpetas según su módulo/entidad:
+    - media/usuarios/perfiles/
+    - media/productos/zapatillas/
+    - media/categorias/
+    - media/marcas/
+    - media/banners/
+    - media/promociones/
+    - media/comprobantes/
+    - media/otros/
+    Nombre único con UUID4.
     """
+    from tienda.services.imagen_service import obtener_carpeta_destino
+
     extension = os.path.splitext(nombre_archivo)[1].lower()
-    carpeta = instance.content_type.model if instance.content_type_id else 'general'
-    return f'imagenes/{carpeta}/{uuid.uuid4().hex}{extension}'
+    modelo = instance.content_type.model if instance.content_type_id else 'otros'
+    subcarpeta = obtener_carpeta_destino(modelo)
+    return f'{subcarpeta}/{uuid.uuid4().hex}{extension}'
 
 
 class ImagenAdjunta(models.Model):
     """
     Imagen genérica reutilizable, asociable a CUALQUIER modelo del sistema
-    (producto, marca, promoción, etc.) mediante GenericForeignKey, sin
-    necesidad de crear un modelo de imagen distinto por cada entidad.
-    Almacenamiento local (MEDIA_ROOT/MEDIA_URL) — sin Cloudinary/S3.
+    mediante GenericForeignKey. Almacenamiento local (MEDIA_ROOT/MEDIA_URL).
     """
     archivo = models.ImageField(upload_to=_ruta_imagen)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

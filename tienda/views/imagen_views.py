@@ -1,18 +1,19 @@
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.responses import success_response
 from tienda.models import ImagenAdjunta
 from tienda.permissions import SoloLecturaOAdministrador
 from tienda.serializers.imagen_serializers import ImagenAdjuntaSerializer, SubirImagenSerializer
+from tienda.services.imagen_service import validar_imagen
 
 
 class SubirImagenView(APIView):
     """
     Endpoint único y reutilizable para subir una imagen y asociarla a
     cualquier modelo (producto, marca, promoción, etc.) vía GenericForeignKey.
-    Devuelve {id, url} como pide el flujo del frontend.
+    Devuelve {id, url} como pide la especificación del sistema.
 
     POST multipart/form-data:
       archivo, app_label, model, object_id, es_principal (opcional), orden (opcional)
@@ -25,6 +26,8 @@ class SubirImagenView(APIView):
         serializer.is_valid(raise_exception=True)
         datos = serializer.validated_data
 
+        validar_imagen(datos['archivo'])
+
         imagen = ImagenAdjunta.objects.create(
             archivo=datos['archivo'],
             content_type=datos['content_type'],
@@ -33,8 +36,11 @@ class SubirImagenView(APIView):
             orden=datos.get('orden', 0),
         )
 
-        return Response(
-            {'id': imagen.id, 'url': request.build_absolute_uri(imagen.archivo.url)},
+        url_completa = request.build_absolute_uri(imagen.archivo.url)
+
+        return success_response(
+            data={'id': imagen.id, 'url': url_completa},
+            message='Imagen subida exitosamente.',
             status=status.HTTP_201_CREATED,
         )
 

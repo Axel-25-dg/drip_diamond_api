@@ -31,7 +31,7 @@ def notificar_pedido_creado(sender, instance, created, **kwargs):
 # ------------------------------------------------------------------
 # Comprobante de pago: al verificar, factura automática + correo.
 # La comisión del vendedor NO se toca aquí (ver services/comision_service.py,
-# solo se dispara cuando el contador confirma la entrega vía chat).
+# solo se dispara cuando se pasa a ENTREGADO).
 # ------------------------------------------------------------------
 @receiver(pre_save, sender='tienda.ComprobantePago')
 def procesar_cambio_estado_comprobante(sender, instance, **kwargs):
@@ -49,7 +49,7 @@ def procesar_cambio_estado_comprobante(sender, instance, **kwargs):
     if instance.estado == EstadoComprobante.VERIFICADO:
         instance.fecha_verificacion = timezone.now()
         pedido.cambiar_estado(
-            EstadoPedido.PAGO_VERIFICADO, comentario='Comprobante verificado',
+            EstadoPedido.PAGO_APROBADO, comentario='Comprobante de pago verificado y aprobado por contabilidad',
             usuario_responsable=instance.verificado_por,
         )
 

@@ -1,9 +1,9 @@
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from tienda.models import ComprobantePago, Pedido, Rol, Usuario
+from core.responses import error_response, success_response
+from tienda.models import ComprobantePago, Pedido, Rol, Usuario, EstadoPedido
 from tienda.permissions import EsAdministrador, EsAdministradorOContador, EsDuenoOAdministrador
 from tienda.serializers.pedido_serializers import (
     ComprobantePagoSerializer,
@@ -13,7 +13,9 @@ from tienda.serializers.pedido_serializers import (
     VerificarComprobanteSerializer,
 )
 from tienda.services.envio_service import marcar_pedido_enviado
+from tienda.services.imagen_service import validar_imagen
 from tienda.services.pedido_service import CarritoVacioError, StockInsuficienteError, crear_pedido_desde_carrito
+
 
 
 class PedidoViewSet(viewsets.ModelViewSet):
@@ -31,47 +33,86 @@ class PedidoViewSet(viewsets.ModelViewSet):
             return qs.filter(vendedor=user)
         return qs.filter(usuario=user)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return success_response(data=serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(data=serializer.data)
+
     def create(self, request, *args, **kwargs):
         serializer = CrearPedidoSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         datos = serializer.validated_data
 
-        vendedor = Usuario.objects.filter(pk=datos.pop('vendedor_id'), rol=Rol.VENDEDOR).first()
-        if not vendedor:
-            return Response({'detail': 'Vendedor no válido.'}, status=status.HTTP_400_BAD_REQUEST)
+        vendedor_id = datos.pop('vendedor_id', None)
+        vendedor = None
+        if vendedor_id:
+            vendedor = Usuario.objects.filter(pk=vendedor_id, rol=Rol.VENDEDOR).first()
+            if not vendedor:
+                return error_response(message='El vendedor seleccionado no es válido.', status=400)
 
         tipo_entrega = datos.pop('tipo_entrega')
-        direccion_data = datos  # el resto ya son los campos de DireccionEnvioPedido
+        direccion_data = datos
 
         try:
             pedido = crear_pedido_desde_carrito(
                 usuario=request.user, vendedor=vendedor, tipo_entrega=tipo_entrega, direccion_data=direccion_data,
             )
         except (CarritoVacioError, StockInsuficienteError) as exc:
-            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(message=str(exc), status=400)
 
-        return Response(PedidoSerializer(pedido).data, status=status.HTTP_201_CREATED)
+        return success_response(
+            data=PedidoSerializer(pedido).data,
+            message='Pedido creado correctamente. Estado: Pendiente de pago.',
+            status=status.HTTP_201_CREATED,
+        )
 
     @action(detail=True, methods=['post'], url_path='subir-comprobante')
     def subir_comprobante(self, request, pk=None):
         pedido = self.get_object()
         if hasattr(pedido, 'comprobante_pago'):
-            return Response({'detail': 'Este pedido ya tiene un comprobante.'}, status=400)
+            return error_response(message='Este pedido ya tiene un comprobante de pago registrado.', status=400)
 
-        serializer = ComprobantePagoSerializer(data={**request.data, 'pedido': pedido.pk})
+        archivo = request.FILES.get('archivo')
+        if archivo:
+            validar_imagen(archivo)
+
+        data = request.data.copy()
+        data['pedido'] = pedido.pk
+        if archivo:
+            data['archivo'] = archivo
+
+        serializer = ComprobantePagoSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        pedido.cambiar_estado('PAGO_SUBIDO', comentario='Comprobante subido por el cliente', usuario_responsable=request.user)
+        pedido.cambiar_estado(
+            EstadoPedido.COMPROBANTE_ENVIADO,
+            comentario='Comprobante subido por el cliente',
+            usuario_responsable=request.user,
+        )
 
         from tienda.services.email_service import notificar_comprobante_recibido
         notificar_comprobante_recibido(pedido)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return success_response(
+            data=serializer.data,
+            message='Comprobante subido exitosamente. El pago está en proceso de revisión.',
+            status=status.HTTP_201_CREATED,
+        )
+
 
     @action(detail=True, methods=['patch'], url_path='definir-costo-envio', permission_classes=[EsAdministrador])
     def definir_costo_envio(self, request, pk=None):
-        """El administrador define/edita manualmente el costo de envío según distancia/ciudad."""
+        """El administrador define/edita manualmente el costo de envío según distancia/zona."""
         pedido = self.get_object()
         serializer = DefinirCostoEnvioSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -81,19 +122,23 @@ class PedidoViewSet(viewsets.ModelViewSet):
         pedido.save(update_fields=['costo_envio', 'costo_envio_definido'])
         pedido.recalcular_total()
 
-        return Response(PedidoSerializer(pedido).data)
+        return success_response(data=PedidoSerializer(pedido).data, message='Costo de envío actualizado correctamente.')
 
     @action(detail=True, methods=['post'], url_path='marcar-contactado', permission_classes=[EsAdministradorOContador])
     def marcar_contactado(self, request, pk=None):
         pedido = self.get_object()
-        pedido.cambiar_estado('CONTACTADO', comentario='Equipo se puso en contacto con el cliente', usuario_responsable=request.user)
-        return Response(PedidoSerializer(pedido).data)
+        pedido.cambiar_estado(
+            EstadoPedido.PAGO_EN_REVISION,
+            comentario='Equipo de soporte se puso en contacto con el cliente',
+            usuario_responsable=request.user,
+        )
+        return success_response(data=PedidoSerializer(pedido).data, message='Estado actualizado: Pago en revisión.')
 
     @action(detail=True, methods=['post'], url_path='marcar-enviado', permission_classes=[EsAdministrador])
     def marcar_enviado(self, request, pk=None):
         pedido = self.get_object()
         pedido = marcar_pedido_enviado(pedido, usuario_responsable=request.user)
-        return Response(PedidoSerializer(pedido).data)
+        return success_response(data=PedidoSerializer(pedido).data, message='Pedido marcado como enviado.')
 
 
 class VerificarComprobanteView(viewsets.ViewSet):
@@ -102,7 +147,7 @@ class VerificarComprobanteView(viewsets.ViewSet):
     def partial_update(self, request, pk=None):
         comprobante = ComprobantePago.objects.filter(pk=pk).first()
         if not comprobante:
-            return Response({'detail': 'Comprobante no encontrado.'}, status=404)
+            return error_response(message='Comprobante no encontrado.', status=404)
 
         serializer = VerificarComprobanteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -112,7 +157,11 @@ class VerificarComprobanteView(viewsets.ViewSet):
         comprobante.verificado_por = request.user
         comprobante.save()  # dispara tienda/signals.py
 
-        return Response(ComprobantePagoSerializer(comprobante).data)
+        estado_msg = "aprobado" if comprobante.estado == 'VERIFICADO' else "rechazado"
+        return success_response(
+            data=ComprobantePagoSerializer(comprobante).data,
+            message=f'Pago del comprobante #{pk} {estado_msg} correctamente.',
+        )
 
 
 class HistorialComprasView(APIView):
@@ -121,4 +170,7 @@ class HistorialComprasView(APIView):
 
     def get(self, request):
         pedidos = Pedido.objects.filter(usuario=request.user).prefetch_related('detalles', 'historial')
-        return Response(PedidoSerializer(pedidos, many=True).data)
+        return success_response(
+            data=PedidoSerializer(pedidos, many=True).data,
+            message='Historial de compras obtenido exitosamente.',
+        )
