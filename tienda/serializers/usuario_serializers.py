@@ -48,19 +48,56 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class RegistroClienteSerializer(serializers.ModelSerializer):
     """
-    Registro público. Pide primer/segundo nombre, primer/segundo apellido,
-    correo, teléfono, dirección referencial y contraseña. El username se
-    autogenera en el signal pre_save si no se envía uno.
+    Registro público. Acepta tanto los campos del frontend (correo, nombre, apellido)
+    como los nativos (email, primer_nombre, primer_apellido). El username se
+    autogenera si no se envía uno.
     """
     password = serializers.CharField(write_only=True, validators=[validate_password])
-    username = serializers.CharField(required=False, allow_blank=True)
+    username = serializers.CharField(required=False, allow_blank=True, default='')
+
+    correo = serializers.EmailField(write_only=True, required=False)
+    nombre = serializers.CharField(write_only=True, required=False)
+    apellido = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Usuario
         fields = [
-            'username', 'email', 'password', 'primer_nombre', 'segundo_nombre',
-            'primer_apellido', 'segundo_apellido', 'telefono', 'direccion_referencial',
+            'username', 'email', 'correo', 'password',
+            'primer_nombre', 'nombre', 'segundo_nombre',
+            'primer_apellido', 'apellido', 'segundo_apellido',
+            'telefono', 'direccion_referencial',
         ]
+        extra_kwargs = {
+            'email': {'required': False},
+            'primer_nombre': {'required': False},
+            'primer_apellido': {'required': False},
+            'telefono': {'required': False, 'allow_blank': True},
+        }
+
+    def validate(self, attrs):
+        if 'correo' in attrs and not attrs.get('email'):
+            attrs['email'] = attrs.pop('correo')
+        elif 'correo' in attrs:
+            attrs.pop('correo')
+
+        if 'nombre' in attrs and not attrs.get('primer_nombre'):
+            attrs['primer_nombre'] = attrs.pop('nombre')
+        elif 'nombre' in attrs:
+            attrs.pop('nombre')
+
+        if 'apellido' in attrs and not attrs.get('primer_apellido'):
+            attrs['primer_apellido'] = attrs.pop('apellido')
+        elif 'apellido' in attrs:
+            attrs.pop('apellido')
+
+        if not attrs.get('email'):
+            raise serializers.ValidationError({'correo': 'El correo electrónico es obligatorio.'})
+        if not attrs.get('primer_nombre'):
+            raise serializers.ValidationError({'nombre': 'El nombre es obligatorio.'})
+        if not attrs.get('primer_apellido'):
+            raise serializers.ValidationError({'apellido': 'El apellido es obligatorio.'})
+
+        return attrs
 
     def validate_username(self, value):
         if value and not username_disponible(value):
@@ -74,6 +111,7 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
         usuario.set_password(password)
         usuario.save()
         return usuario
+
 
 
 class CrearVendedorSerializer(serializers.ModelSerializer):
