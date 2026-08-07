@@ -27,6 +27,7 @@ class LoginView(APIView):
     throttle_scope = 'login'
 
     def post(self, request):
+        from tienda.models import Usuario
         from seguridad_acceso.services import ip_esta_bloqueada, registrar_intento_login
 
         ip = _obtener_ip(request)
@@ -36,12 +37,23 @@ class LoginView(APIView):
                 status=423,
             )
 
+        # Acepta tanto 'correo' (frontend) como 'username' (compatibilidad)
+        correo = request.data.get('correo')
         username = request.data.get('username')
         password = request.data.get('password')
+
+        # Si el frontend envió correo, resolver el username correspondiente
+        if correo and not username:
+            try:
+                user_obj = Usuario.objects.get(email__iexact=correo)
+                username = user_obj.username
+            except Usuario.DoesNotExist:
+                username = None
+
         usuario = authenticate(request, username=username, password=password)
 
         exitoso = usuario is not None
-        registrar_intento_login(username=username or '', ip=ip, exitoso=exitoso)
+        registrar_intento_login(username=correo or username or '', ip=ip, exitoso=exitoso)
 
         if not exitoso:
             return error_response(message='Credenciales inválidas.', status=401)
@@ -58,6 +70,7 @@ class LoginView(APIView):
             },
             message='Inicio de sesión exitoso.',
         )
+
 
 
 class LogoutView(APIView):
