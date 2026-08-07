@@ -102,7 +102,7 @@ class Talla(models.Model):
 class VarianteProducto(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='variantes')
     talla = models.ForeignKey(Talla, on_delete=models.PROTECT, related_name='variantes')
-    stock = models.PositiveIntegerField(default=0)
+    stock = models.PositiveIntegerField(default=9999)
     peso_kg = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0.01)])
     sku = models.CharField(max_length=40, unique=True)
 
