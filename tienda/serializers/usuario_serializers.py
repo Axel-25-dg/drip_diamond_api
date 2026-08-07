@@ -16,20 +16,34 @@ class UsuarioSerializer(serializers.ModelSerializer):
     perfil_vendedor = PerfilVendedorSerializer(read_only=True)
     nombre_completo = serializers.CharField(read_only=True)
 
+    # Alias para compatibilidad con el frontend
+    correo = serializers.EmailField(source='email', read_only=True)
+    nombre = serializers.CharField(source='primer_nombre', read_only=True)
+    apellido = serializers.CharField(source='primer_apellido', read_only=True)
+    foto_perfil_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Usuario
         fields = [
-            'id', 'username', 'email', 'primer_nombre', 'segundo_nombre',
-            'primer_apellido', 'segundo_apellido', 'nombre_completo',
-            'rol', 'telefono', 'direccion_referencial',
-            'doble_factor_activo', 'perfil_vendedor', 'creado_en',
+            'id', 'username', 'email', 'correo',
+            'primer_nombre', 'segundo_nombre',
+            'primer_apellido', 'segundo_apellido',
+            'nombre', 'apellido',
+            'nombre_completo', 'rol', 'telefono',
+            'direccion_referencial', 'doble_factor_activo',
+            'perfil_vendedor', 'creado_en',
+            'foto_perfil_url',
         ]
         read_only_fields = ['id', 'rol', 'creado_en']
+
+    def get_foto_perfil_url(self, obj):
+        return None
 
     def validate_username(self, value):
         if not username_disponible(value, usuario_actual_id=self.instance.id if self.instance else None):
             raise serializers.ValidationError('Ese nombre de usuario ya está en uso.')
         return value
+
 
 
 class RegistroClienteSerializer(serializers.ModelSerializer):
