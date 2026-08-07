@@ -1,4 +1,5 @@
-from django.contrib.contenttypes.fields import GenericRelation
+import uuid
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -21,6 +22,7 @@ class Marca(models.Model):
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True)
+    imagen = models.ImageField(upload_to='categorias/', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Categoría'
@@ -33,8 +35,8 @@ class Categoria(models.Model):
 
 class CalidadProducto(models.TextChoices):
     ORIGINAL = 'ORIGINAL', 'Original'
-    PRIMERA_CLASE = 'PRIMERA_CLASE', 'Primera clase'
-    SEGUNDA_CLASE = 'SEGUNDA_CLASE', 'Segunda clase'
+    PRIMERA_CLASE = 'PRIMERA_CLASE', 'Full Quality'
+    SEGUNDA_CLASE = 'SEGUNDA_CLASE', 'Calidad 1.1 Plus'
 
 
 class Producto(models.Model):
@@ -42,22 +44,26 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, related_name='productos')
     nombre = models.CharField(max_length=150)
     modelo = models.CharField(max_length=100, blank=True)
+    codigo = models.CharField(max_length=60, unique=True, blank=True, null=True, help_text='Código único del producto; si no se envía, se genera automáticamente.')
     calidad = models.CharField(max_length=20, choices=CalidadProducto.choices, default=CalidadProducto.ORIGINAL)
     descripcion = models.TextField(blank=True)
     precio_base = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0)])
+    imagen_principal = models.ImageField(upload_to='productos/', blank=True, null=True)
     activo = models.BooleanField(default=True)
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
-
-    # Imágenes: relación genérica reutilizable (ver tienda/models/imagen.py).
-    # Un producto puede tener varias; el frontend arma la galería con esto.
-    imagenes = GenericRelation('tienda.ImagenAdjunta')
 
     class Meta:
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
         ordering = ['-creado_en']
         indexes = [models.Index(fields=['marca']), models.Index(fields=['activo'])]
+
+    def save(self, *args, **kwargs):
+        if not self.codigo:
+            base = self.nombre or 'PRODUCTO'
+            self.codigo = f'ZAP-{base[:4].upper().replace(" ", "")}-{uuid.uuid4().hex[:4].upper()}'
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.marca} {self.nombre} ({self.get_calidad_display()})'
