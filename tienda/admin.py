@@ -12,7 +12,6 @@ from tienda.models import (
     DireccionEnvioPedido,
     Factura,
     HistorialEstadoPedido,
-    ImagenAdjunta,
     ItemCarrito,
     LibroVentas,
     LiquidacionMensual,
@@ -110,7 +109,6 @@ admin.site.register(RetencionImpuesto)
 admin.site.register(LibroVentas)
 admin.site.register(ReporteSRI)
 admin.site.register(Notificacion)
-admin.site.register(ImagenAdjunta)
 
 
 @admin.register(CampanaEmail)

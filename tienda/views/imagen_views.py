@@ -1,22 +1,18 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.views import APIView
 
 from core.responses import success_response
-from tienda.models import ImagenAdjunta
 from tienda.permissions import SoloLecturaOAdministrador
-from tienda.serializers.imagen_serializers import ImagenAdjuntaSerializer, SubirImagenSerializer
+from tienda.serializers.imagen_serializers import SubirImagenSerializer
 from tienda.services.imagen_service import validar_imagen
 
 
 class SubirImagenView(APIView):
     """
-    Endpoint único y reutilizable para subir una imagen y asociarla a
-    cualquier modelo (producto, marca, promoción, etc.) vía GenericForeignKey.
-    Devuelve {id, url} como pide la especificación del sistema.
-
-    POST multipart/form-data:
-      archivo, app_label, model, object_id, es_principal (opcional), orden (opcional)
+    Endpoint para subir imágenes y asociarlas directamente a un campo ImageField del modelo.
+    Soporta campos como imagen, imagen_principal, logo y foto_perfil.
     """
     permission_classes = [permissions.IsAuthenticated, SoloLecturaOAdministrador]
     parser_classes = [MultiPartParser, FormParser]
@@ -28,29 +24,29 @@ class SubirImagenView(APIView):
 
         validar_imagen(datos['archivo'])
 
-        imagen = ImagenAdjunta.objects.create(
-            archivo=datos['archivo'],
-            content_type=datos['content_type'],
-            object_id=datos['object_id'],
-            es_principal=datos.get('es_principal', False),
-            orden=datos.get('orden', 0),
-        )
+        instancia = datos['model_class'].objects.get(pk=datos['object_id'])
+        field_name = datos['field_name']
+        setattr(instancia, field_name, datos['archivo'])
+        instancia.save(update_fields=[field_name])
 
-        url_completa = request.build_absolute_uri(imagen.archivo.url)
+        url_completa = request.build_absolute_uri(getattr(instancia, field_name).url)
 
         return success_response(
-            data={'id': imagen.id, 'url': url_completa},
+            data={'id': instancia.pk, 'url': url_completa, 'field': field_name},
             message='Imagen subida exitosamente.',
             status=status.HTTP_201_CREATED,
         )
 
 
 class ImagenAdjuntaViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
-    """Listar/consultar imágenes de un objeto: ?content_type=<id>&object_id=<id>, o eliminarlas por id."""
-    queryset = ImagenAdjunta.objects.all()
-    serializer_class = ImagenAdjuntaSerializer
+    """Compatibilidad temporal: devuelve una lista vacía y permite un flujo simple para el front."""
     permission_classes = [SoloLecturaOAdministrador]
-    filterset_fields = ['content_type', 'object_id']
 
-    def get_serializer_context(self):
-        return {'request': self.request}
+    def list(self, request, *args, **kwargs):
+        return success_response(data=[], message='El flujo de imágenes ahora usa los campos ImageField nativos del modelo.')
+
+    def retrieve(self, request, *args, **kwargs):
+        return success_response(data=None, message='Esta ruta ya no se usa.', status=status.HTTP_404_NOT_FOUND)
+
+    def destroy(self, request, *args, **kwargs):
+        return success_response(data=None, message='La eliminación se realiza desde el modelo correspondiente.', status=status.HTTP_404_NOT_FOUND)

@@ -44,3 +44,28 @@ class ImagenesTests(APITestCase):
         self.assertTrue(response.data['success'])
         self.assertIn('url', response.data['data'])
         self.assertIn('categorias', response.data['data']['url'])
+
+    def test_categoria_devuelve_imagen_en_api(self):
+        image_file = BytesIO()
+        image = Image.new('RGB', (100, 100), color='blue')
+        image.save(image_file, 'png')
+        image_file.seek(0)
+
+        uploaded = SimpleUploadedFile('categoria.png', image_file.read(), content_type='image/png')
+
+        self.client.post(
+            reverse('subir-imagen'),
+            {
+                'archivo': uploaded,
+                'app_label': 'tienda',
+                'model': 'categoria',
+                'object_id': self.categoria.id,
+            },
+            format='multipart',
+        )
+
+        response = self.client.get(reverse('categoria-detail', kwargs={'pk': self.categoria.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('categorias', response.data['imagen'])
+        self.categoria.refresh_from_db()
+        self.assertTrue(self.categoria.imagen)

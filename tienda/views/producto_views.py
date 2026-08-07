@@ -37,13 +37,19 @@ class TallaViewSet(viewsets.ModelViewSet):
 
 
 class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.filter(activo=True).select_related('marca', 'categoria').prefetch_related(
-        'imagenes', 'variantes', 'promociones'
+    queryset = Producto.objects.select_related('marca', 'categoria').prefetch_related(
+        'variantes', 'promociones'
     )
     permission_classes = [SoloLecturaOAdministrador]
     filterset_class = ProductoFilter
-    search_fields = ['nombre', 'modelo', 'marca__nombre']
+    search_fields = ['nombre', 'modelo', 'codigo', 'marca__nombre']
     ordering_fields = ['precio_base', 'creado_en']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.action == 'list':
+            return qs.filter(activo=True)
+        return qs
 
     def get_serializer_class(self):
         if self.action == 'list':

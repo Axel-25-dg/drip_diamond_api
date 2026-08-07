@@ -26,6 +26,7 @@ class Usuario(AbstractUser):
         max_length=255, blank=True,
         help_text='Dirección de referencia del registro; la dirección exacta se pide en cada compra.',
     )
+    foto_perfil = models.ImageField(upload_to='usuarios/perfiles/', blank=True, null=True)
 
     doble_factor_activo = models.BooleanField(default=False)
     ultima_ip_conocida = models.GenericIPAddressField(null=True, blank=True)
