@@ -140,6 +140,14 @@ class PedidoViewSet(viewsets.ModelViewSet):
         pedido = marcar_pedido_enviado(pedido, usuario_responsable=request.user)
         return success_response(data=PedidoSerializer(pedido).data, message='Pedido marcado como enviado.')
 
+    @action(detail=False, methods=['get'], url_path='comprobantes/pendientes', permission_classes=[EsAdministradorOContador])
+    def comprobantes_pendientes(self, request):
+        comprobantes = ComprobantePago.objects.filter(estado='PENDIENTE').select_related('pedido', 'pedido__usuario')
+        return success_response(
+            data=ComprobantePagoSerializer(comprobantes, many=True).data,
+            message='Comprobantes pendientes obtenidos exitosamente.',
+        )
+
 
 class VerificarComprobanteView(viewsets.ViewSet):
     permission_classes = [EsAdministradorOContador]

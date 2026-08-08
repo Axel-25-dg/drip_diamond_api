@@ -111,6 +111,12 @@ class VarianteProducto(models.Model):
         verbose_name_plural = 'Variantes de Producto'
         unique_together = ('producto', 'talla')
 
+    def save(self, *args, **kwargs):
+        if not self.sku:
+            import uuid
+            self.sku = f'SKU-{self.producto_id or "0"}-{self.talla_id or "0"}-{uuid.uuid4().hex[:6].upper()}'
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.producto} — talla {self.talla} ({self.stock} unid.)'
 

@@ -137,15 +137,17 @@ class ProductoDetalleSerializer(serializers.ModelSerializer):
         if not variantes_data and 'variantes' in self.initial_data:
             variantes_data = self.initial_data.get('variantes', [])
         producto = Producto.objects.create(**validated_data)
+        import uuid
         for variante_data in variantes_data:
             talla_id = variante_data.get('talla_id') or variante_data.get('talla')
             if not talla_id:
                 continue
+            sku = variante_data.get('sku') or f'SKU-{producto.id}-{talla_id}-{uuid.uuid4().hex[:6].upper()}'
             VarianteProducto.objects.create(
                 producto=producto,
                 talla_id=talla_id,
                 stock=variante_data.get('stock', 9999),
                 peso_kg=variante_data.get('peso_kg', 0.01),
-                sku=variante_data.get('sku', ''),
+                sku=sku,
             )
         return producto
