@@ -92,13 +92,33 @@ class PedidoSerializer(serializers.ModelSerializer):
 
 
 class CrearPedidoSerializer(serializers.Serializer):
-    """Input para generar el pedido a partir del carrito. vendedor_id es opcional (null = Ningún vendedor)."""
+    """Input para generar el pedido a partir del carrito. Acepta direccion_envio (frontend) o direccion_formateada."""
     vendedor_id = serializers.IntegerField(required=False, allow_null=True)
-    tipo_entrega = serializers.ChoiceField(choices=['DOMICILIO', 'RETIRO_LOCAL'])
+    tipo_entrega = serializers.ChoiceField(choices=['DOMICILIO', 'RETIRO_LOCAL'], required=False, default='DOMICILIO')
 
-    direccion_formateada = serializers.CharField(max_length=255)
+    direccion_formateada = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    direccion_envio = serializers.CharField(max_length=255, required=False, allow_blank=True)
     referencia_adicional = serializers.CharField(max_length=255, required=False, allow_blank=True)
-    ciudad = serializers.CharField(max_length=100)
+    ciudad = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    provincia = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    telefono_contacto = serializers.CharField(max_length=50, required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        if 'direccion_envio' in attrs and not attrs.get('direccion_formateada'):
+            attrs['direccion_formateada'] = attrs.pop('direccion_envio')
+        elif 'direccion_envio' in attrs:
+            attrs.pop('direccion_envio')
+
+        attrs.pop('provincia', None)
+        attrs.pop('telefono_contacto', None)
+
+        if not attrs.get('direccion_formateada'):
+            attrs['direccion_formateada'] = 'Retiro en local' if attrs.get('tipo_entrega') == 'RETIRO_LOCAL' else 'Dirección no especificada'
+
+        if not attrs.get('ciudad'):
+            attrs['ciudad'] = 'Quito'
+
+        return attrs
 
 
 class DefinirCostoEnvioSerializer(serializers.Serializer):
