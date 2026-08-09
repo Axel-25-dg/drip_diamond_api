@@ -17,9 +17,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
     nombre_completo = serializers.CharField(read_only=True)
 
     # Alias para compatibilidad con el frontend
-    correo = serializers.EmailField(source='email', read_only=True)
-    nombre = serializers.CharField(source='primer_nombre', read_only=True)
-    apellido = serializers.CharField(source='primer_apellido', read_only=True)
+    correo = serializers.EmailField(source='email', required=False)
+    nombre = serializers.CharField(source='primer_nombre', required=False)
+    apellido = serializers.CharField(source='primer_apellido', required=False)
+    foto_perfil = serializers.ImageField(required=False, allow_null=True)
     foto_perfil_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -32,12 +33,27 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'nombre_completo', 'rol', 'telefono',
             'direccion_referencial', 'doble_factor_activo',
             'perfil_vendedor', 'creado_en',
-            'foto_perfil_url',
+            'foto_perfil', 'foto_perfil_url',
         ]
         read_only_fields = ['id', 'rol', 'creado_en']
 
     def get_foto_perfil_url(self, obj):
-        return None
+        if not obj.foto_perfil:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.foto_perfil.url)
+        return obj.foto_perfil.url
+
+    def to_internal_value(self, data):
+        data = data.copy()
+        if 'correo' in data and 'email' not in data:
+            data['email'] = data.pop('correo')
+        if 'nombre' in data and 'primer_nombre' not in data:
+            data['primer_nombre'] = data.pop('nombre')
+        if 'apellido' in data and 'primer_apellido' not in data:
+            data['primer_apellido'] = data.pop('apellido')
+        return super().to_internal_value(data)
 
     def validate_username(self, value):
         if not username_disponible(value, usuario_actual_id=self.instance.id if self.instance else None):

@@ -57,7 +57,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         if vendedor_id:
             vendedor = Usuario.objects.filter(pk=vendedor_id, rol=Rol.VENDEDOR).first()
             if not vendedor:
-                return error_response(message='El vendedor seleccionado no es válido.', status=400)
+                return error_response(message='El vendedor seleccionado no es vÃƒÂ¡lido.', status=400)
 
         tipo_entrega = datos.pop('tipo_entrega')
         direccion_data = datos
@@ -105,14 +105,14 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
         return success_response(
             data=serializer.data,
-            message='Comprobante subido exitosamente. El pago está en proceso de revisión.',
+            message='Comprobante subido exitosamente. El pago estÃƒÂ¡ en proceso de revisiÃƒÂ³n.',
             status=status.HTTP_201_CREATED,
         )
 
 
     @action(detail=True, methods=['patch'], url_path='definir-costo-envio', permission_classes=[EsAdministrador])
     def definir_costo_envio(self, request, pk=None):
-        """El administrador define/edita manualmente el costo de envío según distancia/zona."""
+        """El administrador define/edita manualmente el costo de envÃƒÂ­o segÃƒÂºn distancia/zona."""
         pedido = self.get_object()
         serializer = DefinirCostoEnvioSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -122,7 +122,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         pedido.save(update_fields=['costo_envio', 'costo_envio_definido'])
         pedido.recalcular_total()
 
-        return success_response(data=PedidoSerializer(pedido).data, message='Costo de envío actualizado correctamente.')
+        return success_response(data=PedidoSerializer(pedido).data, message='Costo de envÃƒÂ­o actualizado correctamente.')
 
     @action(detail=True, methods=['post'], url_path='marcar-contactado', permission_classes=[EsAdministradorOContador])
     def marcar_contactado(self, request, pk=None):
@@ -132,13 +132,50 @@ class PedidoViewSet(viewsets.ModelViewSet):
             comentario='Equipo de soporte se puso en contacto con el cliente',
             usuario_responsable=request.user,
         )
-        return success_response(data=PedidoSerializer(pedido).data, message='Estado actualizado: Pago en revisión.')
+        return success_response(data=PedidoSerializer(pedido).data, message='Estado actualizado: Pago en revisiÃƒÂ³n.')
 
-    @action(detail=True, methods=['post'], url_path='marcar-enviado', permission_classes=[EsAdministrador])
+    @action(detail=True, methods=['post'], url_path='marcar-enviado', permission_classes=[EsAdministradorOContador])
     def marcar_enviado(self, request, pk=None):
         pedido = self.get_object()
+        # Allow passing a custom tracking number from the request
+        numero_guia = request.data.get('numero_guia', '').strip()
+        if numero_guia:
+            pedido.numero_guia = numero_guia
+            pedido.save(update_fields=['numero_guia'])
         pedido = marcar_pedido_enviado(pedido, usuario_responsable=request.user)
         return success_response(data=PedidoSerializer(pedido).data, message='Pedido marcado como enviado.')
+
+
+    @action(detail=True, methods=['post'], url_path='preparar-pedido', permission_classes=[EsAdministradorOContador])
+    def preparar_pedido(self, request, pk=None):
+        pedido = self.get_object()
+        pedido.cambiar_estado(
+            EstadoPedido.PREPARANDO_PEDIDO,
+            comentario='Pedido en preparacion para despacho',
+            usuario_responsable=request.user,
+        )
+        return success_response(data=PedidoSerializer(pedido).data, message='Pedido en preparacion.')
+
+    @action(detail=True, methods=['post'], url_path='marcar-entregado', permission_classes=[EsAdministradorOContador])
+    def marcar_entregado(self, request, pk=None):
+        from tienda.services.comision_service import (
+            confirmar_entrega_y_generar_comision,
+            EntregaYaConfirmadaError,
+            PedidoNoEnviadoError,
+        )
+        pedido = self.get_object()
+        try:
+            confirmar_entrega_y_generar_comision(pedido, contador=request.user)
+        except EntregaYaConfirmadaError as e:
+            return error_response(message=str(e), status=400)
+        except PedidoNoEnviadoError:
+            # Pedido not in ENVIADO state — force state change anyway
+            pedido.cambiar_estado(
+                EstadoPedido.ENTREGADO,
+                comentario='Entrega confirmada manualmente',
+                usuario_responsable=request.user,
+            )
+        return success_response(data=PedidoSerializer(pedido).data, message='Pedido entregado. Comision generada al vendedor.')
 
     @action(detail=False, methods=['get'], url_path='comprobantes/pendientes', permission_classes=[EsAdministradorOContador])
     def comprobantes_pendientes(self, request):
@@ -182,3 +219,5 @@ class HistorialComprasView(APIView):
             data=PedidoSerializer(pedidos, many=True).data,
             message='Historial de compras obtenido exitosamente.',
         )
+
+

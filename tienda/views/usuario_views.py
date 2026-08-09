@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
 from core.responses import success_response
@@ -33,7 +34,7 @@ class RegistroClienteView(generics.CreateAPIView):
 
 
 class VerificarUsernameView(generics.GenericAPIView):
-    """Para validar en vivo, en el formulario de registro/edición, que el username elegido esté libre."""
+    """Para validar en vivo, en el formulario de registro/ediciÃ³n, que el username elegido estÃ© libre."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
@@ -43,7 +44,7 @@ class VerificarUsernameView(generics.GenericAPIView):
         disponible = username_disponible(username)
         return success_response(
             data={'disponible': disponible, 'username': username},
-            message='Verificación de username realizada.',
+            message='VerificaciÃ³n de username realizada.',
         )
 
 
@@ -51,14 +52,16 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.select_related('perfil_vendedor', 'perfil_contador')
     serializer_class = UsuarioSerializer
     permission_classes = [EsAdministrador]
+    parser_classes = [MultiPartParser, FormParser]
     filterset_fields = ['rol']
     search_fields = ['username', 'email', 'primer_nombre', 'primer_apellido']
 
-    @action(detail=False, methods=['get', 'patch'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['get', 'patch'], permission_classes=[permissions.IsAuthenticated],
+             parser_classes=[MultiPartParser, FormParser, JSONParser])
     def me(self, request):
         if request.method == 'GET':
-            return success_response(data=UsuarioSerializer(request.user).data)
-        serializer = UsuarioSerializer(request.user, data=request.data, partial=True)
+            return success_response(data=UsuarioSerializer(request.user, context={'request': request}).data)
+        serializer = UsuarioSerializer(request.user, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return success_response(data=serializer.data, message='Perfil actualizado exitosamente.')
@@ -97,7 +100,7 @@ class CrearContadorView(generics.CreateAPIView):
 
 
 class ListaVendedoresActivosView(generics.ListAPIView):
-    """Lista pública (para usuarios autenticados) de vendedores activos, elección obligatoria en el checkout."""
+    """Lista pÃºblica (para usuarios autenticados) de vendedores activos, elecciÃ³n obligatoria en el checkout."""
     queryset = Usuario.objects.filter(rol=Rol.VENDEDOR, perfil_vendedor__activo=True)
     serializer_class = UsuarioSerializer
     permission_classes = [permissions.IsAuthenticated]

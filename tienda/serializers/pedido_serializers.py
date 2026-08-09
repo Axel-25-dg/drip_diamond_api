@@ -19,11 +19,40 @@ class ItemCarritoSerializer(serializers.ModelSerializer):
         queryset=VarianteProducto.objects.all(), source='variante_producto', write_only=True
     )
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    producto_nombre = serializers.SerializerMethodField()
+    marca = serializers.SerializerMethodField()
+    talla = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemCarrito
-        fields = ['id', 'variante_producto', 'variante_producto_id', 'cantidad', 'subtotal']
+        fields = ['id', 'variante_producto', 'variante_producto_id', 'cantidad', 'subtotal',
+                  'producto_nombre', 'marca', 'talla', 'color', 'imagen_url']
 
+    def get_producto_nombre(self, obj):
+        try: return obj.variante_producto.producto.nombre
+        except Exception: return ''
+
+    def get_marca(self, obj):
+        try: return obj.variante_producto.producto.marca.nombre
+        except Exception: return ''
+
+    def get_talla(self, obj):
+        try: return obj.variante_producto.talla.valor
+        except Exception: return ''
+
+    def get_color(self, obj):
+        try: return obj.variante_producto.color or 'Estandar'
+        except Exception: return ''
+
+    def get_imagen_url(self, obj):
+        try:
+            img = obj.variante_producto.producto.imagen_principal
+            if not img: return None
+            request = self.context.get('request')
+            return request.build_absolute_uri(img.url) if request else img.url
+        except Exception: return None
 
 class CarritoSerializer(serializers.ModelSerializer):
     items = ItemCarritoSerializer(many=True, read_only=True)
@@ -113,7 +142,7 @@ class CrearPedidoSerializer(serializers.Serializer):
         attrs.pop('telefono_contacto', None)
 
         if not attrs.get('direccion_formateada'):
-            attrs['direccion_formateada'] = 'Retiro en local' if attrs.get('tipo_entrega') == 'RETIRO_LOCAL' else 'Dirección no especificada'
+            attrs['direccion_formateada'] = 'Retiro en local' if attrs.get('tipo_entrega') == 'RETIRO_LOCAL' else 'DirecciÃ³n no especificada'
 
         if not attrs.get('ciudad'):
             attrs['ciudad'] = 'Quito'
@@ -122,5 +151,5 @@ class CrearPedidoSerializer(serializers.Serializer):
 
 
 class DefinirCostoEnvioSerializer(serializers.Serializer):
-    """Solo el administrador: define/edita manualmente el costo de envío de un pedido puntual."""
+    """Solo el administrador: define/edita manualmente el costo de envÃ­o de un pedido puntual."""
     costo_envio = serializers.DecimalField(max_digits=8, decimal_places=2, min_value=0)
