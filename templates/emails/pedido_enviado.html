@@ -4,7 +4,13 @@
 
 {% block preheader %}Tus sneakers están en camino. Código de rastreo: {{ pedido.numero_guia }}.{% endblock %}
 
-{% block encabezado %}¡Tu pedido va en camino! 🚚{% endblock %}
+{% block encabezado %}
+<!-- Logo de la marca -->
+<div style="text-align: center; margin-bottom: 20px;">
+  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
+</div>
+¡Tu pedido va en camino!
+{% endblock %}
 
 {% block contenido %}
 
@@ -14,7 +20,7 @@
 
 <p style="margin:0 0 24px 0;color:#b0a8c8;">
   ¡Tus sneakers de <strong style="color:#a855f7;">Drip Diamond</strong> ya fueron despachados
-  y están en camino hacia ti! 🔥
+  y están en camino hacia ti!
 </p>
 
 <!-- Shipping banner -->
@@ -23,7 +29,6 @@
   <tr>
     <td style="background:linear-gradient(135deg,#0a1a2e,#0d1a3a);border:2px solid #06b6d4;
                border-radius:12px;padding:24px;text-align:center;">
-      <p style="margin:0 0 6px 0;font-size:36px;">🚚</p>
       <p style="margin:0 0 4px 0;font-size:16px;font-weight:700;color:#06b6d4;
                 text-transform:uppercase;letter-spacing:1px;">En camino</p>
       {% if pedido.numero_guia %}
@@ -49,19 +54,39 @@
     <td style="width:4px;background:linear-gradient(180deg,#7c3aed,#06b6d4);border-radius:10px 0 0 10px;">&nbsp;</td>
     <td style="padding:16px 20px;">
       <p style="margin:0 0 8px 0;font-size:14px;color:#b0a8c8;">
-        📦 Pedido <strong style="color:#f0eeff;">#{{ pedido.id }}</strong>
+        Pedido <strong style="color:#f0eeff;">#{{ pedido.id }}</strong>
       </p>
       {% if pedido.direccion_envio %}
       <p style="margin:0;font-size:13px;color:#7c6fa0;">
-        📍 {{ pedido.direccion_envio.direccion_completa|default:"Dirección de entrega registrada" }}
+        {{ pedido.direccion_envio.direccion_completa|default:"Dirección de entrega registrada" }}
       </p>
       {% endif %}
     </td>
   </tr>
 </table>
 
-<p style="margin:0;font-size:13px;color:#5a527a;">
+<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
   Si tienes algún problema con la entrega, contáctanos respondiendo este correo.
 </p>
+
+<!-- Footer / Redes Sociales -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
+  <tr>
+    <td align="center" style="padding-top:20px;">
+      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
+      
+      <!-- Iconos de Redes Sociales -->
+      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
+        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
+      </a>
+      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
+        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
+      </a>
+      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
+        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
+      </a>
+    </td>
+  </tr>
+</table>
 
 {% endblock %}

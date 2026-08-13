@@ -4,7 +4,13 @@
 
 {% block preheader %}Recibimos tu comprobante del pedido #{{ pedido.id }}. Estamos verificando tu pago.{% endblock %}
 
-{% block encabezado %}Comprobante recibido ✅{% endblock %}
+{% block encabezado %}
+<!-- Logo de la marca -->
+<div style="text-align: center; margin-bottom: 20px;">
+  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
+</div>
+Comprobante recibido
+{% endblock %}
 
 {% block contenido %}
 
@@ -25,11 +31,10 @@
     <td align="center">
       <div style="display:inline-block;background:#0a1a14;border:2px solid #10b981;border-radius:12px;
                   padding:20px 36px;text-align:center;">
-        <p style="margin:0 0 6px 0;font-size:28px;">⏳</p>
-        <p style="margin:0;font-size:14px;font-weight:700;color:#10b981;letter-spacing:1px;text-transform:uppercase;">
-          En revisión
+        <p style="margin:0;font-size:14px;font-weight:700;color:#10b981;letter-spacing:1.5px;text-transform:uppercase;">
+          Estado: En revisión
         </p>
-        <p style="margin:4px 0 0 0;font-size:12px;color:#5a8a72;">Pedido #{{ pedido.id }}</p>
+        <p style="margin:6px 0 0 0;font-size:12px;color:#5a8a72;">Pedido #{{ pedido.id }}</p>
       </div>
     </td>
   </tr>
@@ -42,14 +47,34 @@
     <td style="width:4px;background:#10b981;border-radius:10px 0 0 10px;">&nbsp;</td>
     <td style="padding:14px 18px;">
       <p style="margin:0;font-size:13px;color:#6ab890;">
-        ✅ Te notificaremos por correo una vez que tu pago sea <strong>aprobado o rechazado</strong>.
+        Te notificaremos por correo una vez que tu pago sea <strong>aprobado o rechazado</strong>.
       </p>
     </td>
   </tr>
 </table>
 
-<p style="margin:0;font-size:13px;color:#5a527a;">
+<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
   Si tienes dudas sobre tu comprobante, responde a este correo adjuntando nuevamente la imagen.
 </p>
+
+<!-- Footer / Redes Sociales -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
+  <tr>
+    <td align="center" style="padding-top:20px;">
+      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
+      
+      <!-- Iconos de Redes Sociales -->
+      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
+        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
+      </a>
+      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
+        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
+      </a>
+      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
+        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
+      </a>
+    </td>
+  </tr>
+</table>
 
 {% endblock %}

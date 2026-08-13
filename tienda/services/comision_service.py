@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 
 from django.conf import settings
 from django.db import transaction
@@ -15,18 +15,13 @@ class PedidoNoEnviadoError(Exception):
 
 @transaction.atomic
 def confirmar_entrega_y_generar_comision(pedido, contador):
-    """
-    ÚNICO punto del sistema donde se genera la comisión del vendedor.
-    Si existe un vendedor asignado, calcula la comisión fija de 4 USD por par.
-    Si el cliente seleccionó "Ningún vendedor" (vendedor is None), la comisión es 0 USD
-    y no se crea ningún registro de comisión.
-    """
-    from tienda.models import ComisionVenta, EstadoPedido
+    from tienda.models import ComisionVenta, EstadoPedido, LiquidacionMensual
+    from tienda.models.comision import EstadoComision
     from tienda.services.email_service import notificar_pedido_entregado
     from tienda.services.pedido_service import total_pares
 
     if hasattr(pedido, 'comision'):
-        raise EntregaYaConfirmadaError('Este pedido ya tiene la entrega confirmada y su comisión generada.')
+        raise EntregaYaConfirmadaError('Este pedido ya tiene la entrega confirmada.')
 
     if pedido.estado != EstadoPedido.ENVIADO:
         raise PedidoNoEnviadoError('El pedido debe estar en estado ENVIADO antes de confirmar la entrega.')
@@ -37,6 +32,17 @@ def confirmar_entrega_y_generar_comision(pedido, contador):
         pares = total_pares(pedido)
         monto_por_par = Decimal(str(settings.COMISION_FIJA_POR_PAR))
         monto_total = monto_por_par * pares
+        ahora = timezone.localtime()
+
+        # Si ya existe una liquidacion NO pagada para este mes, asignar directamente
+        liq_existente = LiquidacionMensual.objects.filter(
+            vendedor=pedido.vendedor,
+            periodo_anio=ahora.year,
+            periodo_mes=ahora.month,
+            pagada=False,
+        ).first()
+
+        estado_comision = EstadoComision.LIQUIDADA if liq_existente else EstadoComision.PENDIENTE
 
         comision = ComisionVenta.objects.create(
             pedido=pedido,
@@ -45,7 +51,12 @@ def confirmar_entrega_y_generar_comision(pedido, contador):
             monto_por_par=monto_por_par,
             monto=monto_total,
             confirmada_por=contador,
+            estado=estado_comision,
+            liquidacion=liq_existente,
         )
+
+        if liq_existente:
+            _recalcular_liquidacion(liq_existente)
 
     pedido.cambiar_estado(
         EstadoPedido.ENTREGADO,
@@ -56,29 +67,50 @@ def confirmar_entrega_y_generar_comision(pedido, contador):
     return comision
 
 
+def _recalcular_liquidacion(liquidacion):
+    from django.db.models import Sum
+    agg = liquidacion.comisiones.aggregate(tp=Sum('cantidad_pares'), tm=Sum('monto'))
+    liquidacion.total_pares = agg['tp'] or 0
+    liquidacion.total_comisiones = agg['tm'] or Decimal('0')
+    liquidacion.save(update_fields=['total_pares', 'total_comisiones'])
+
+
 @transaction.atomic
 def generar_liquidacion_mensual(vendedor, anio, mes):
     from tienda.models import ComisionVenta, EstadoComision, LiquidacionMensual
 
-    comisiones = ComisionVenta.objects.filter(
-        vendedor=vendedor, estado=EstadoComision.PENDIENTE,
-        generada_en__year=anio, generada_en__month=mes,
+    liquidacion, created = LiquidacionMensual.objects.get_or_create(
+        vendedor=vendedor,
+        periodo_anio=anio,
+        periodo_mes=mes,
     )
 
-    liquidacion, _ = LiquidacionMensual.objects.get_or_create(vendedor=vendedor, periodo_anio=anio, periodo_mes=mes)
-    liquidacion.total_pares = sum((c.cantidad_pares for c in comisiones), 0)
-    liquidacion.total_comisiones = sum((c.monto for c in comisiones), Decimal('0'))
-    liquidacion.save(update_fields=['total_pares', 'total_comisiones'])
+    # Comisiones pendientes sin liquidacion del mes
+    pendientes = ComisionVenta.objects.filter(
+        vendedor=vendedor,
+        generada_en__year=anio,
+        generada_en__month=mes,
+        liquidacion__isnull=True,
+        estado=EstadoComision.PENDIENTE,
+    )
+    # Comisiones ya asignadas a esta liquidacion
+    ya_asignadas = ComisionVenta.objects.filter(
+        vendedor=vendedor,
+        generada_en__year=anio,
+        generada_en__month=mes,
+        liquidacion=liquidacion,
+    )
 
-    comisiones.update(estado=EstadoComision.LIQUIDADA, liquidacion=liquidacion)
+    # Asignar pendientes a la liquidacion
+    pendientes.update(estado=EstadoComision.LIQUIDADA, liquidacion=liquidacion)
+
+    # Recalcular totales con TODAS las comisiones del mes (ya asignadas + recien asignadas)
+    _recalcular_liquidacion(liquidacion)
+
     return liquidacion
 
 
 def marcar_liquidacion_pagada(liquidacion, contador, comprobante_pago):
-    """
-    Acción del contador: marcar la liquidación como pagada una vez que
-    se realiza la transferencia.
-    """
     from tienda.services.email_service import notificar_comision_pagada
 
     liquidacion.comprobante_pago = comprobante_pago
