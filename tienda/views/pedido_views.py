@@ -1,4 +1,4 @@
-from rest_framework import permissions, status, viewsets
+﻿from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 
@@ -57,7 +57,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         if vendedor_id:
             vendedor = Usuario.objects.filter(pk=vendedor_id, rol=Rol.VENDEDOR).first()
             if not vendedor:
-                return error_response(message='El vendedor seleccionado no es vÃƒÂ¡lido.', status=400)
+                return error_response(message='El vendedor seleccionado no es vÃƒÆ’Ã‚Â¡lido.', status=400)
 
         tipo_entrega = datos.pop('tipo_entrega')
         direccion_data = datos
@@ -105,14 +105,14 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
         return success_response(
             data=serializer.data,
-            message='Comprobante subido exitosamente. El pago estÃƒÂ¡ en proceso de revisiÃƒÂ³n.',
+            message='Comprobante subido exitosamente. El pago estÃƒÆ’Ã‚Â¡ en proceso de revisiÃƒÆ’Ã‚Â³n.',
             status=status.HTTP_201_CREATED,
         )
 
 
     @action(detail=True, methods=['patch'], url_path='definir-costo-envio', permission_classes=[EsAdministrador])
     def definir_costo_envio(self, request, pk=None):
-        """El administrador define/edita manualmente el costo de envÃƒÂ­o segÃƒÂºn distancia/zona."""
+        """El administrador define/edita manualmente el costo de envÃƒÆ’Ã‚Â­o segÃƒÆ’Ã‚Âºn distancia/zona."""
         pedido = self.get_object()
         serializer = DefinirCostoEnvioSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -122,7 +122,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         pedido.save(update_fields=['costo_envio', 'costo_envio_definido'])
         pedido.recalcular_total()
 
-        return success_response(data=PedidoSerializer(pedido).data, message='Costo de envÃƒÂ­o actualizado correctamente.')
+        return success_response(data=PedidoSerializer(pedido).data, message='Costo de envÃƒÆ’Ã‚Â­o actualizado correctamente.')
 
     @action(detail=True, methods=['post'], url_path='marcar-contactado', permission_classes=[EsAdministradorOContador])
     def marcar_contactado(self, request, pk=None):
@@ -132,7 +132,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
             comentario='Equipo de soporte se puso en contacto con el cliente',
             usuario_responsable=request.user,
         )
-        return success_response(data=PedidoSerializer(pedido).data, message='Estado actualizado: Pago en revisiÃƒÂ³n.')
+        return success_response(data=PedidoSerializer(pedido).data, message='Estado actualizado: Pago en revisiÃƒÆ’Ã‚Â³n.')
 
     @action(detail=True, methods=['post'], url_path='marcar-enviado', permission_classes=[EsAdministradorOContador])
     def marcar_enviado(self, request, pk=None):
@@ -169,7 +169,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         except EntregaYaConfirmadaError as e:
             return error_response(message=str(e), status=400)
         except PedidoNoEnviadoError:
-            # Pedido not in ENVIADO state — force state change anyway
+            # Pedido not in ENVIADO state â€” force state change anyway
             pedido.cambiar_estado(
                 EstadoPedido.ENTREGADO,
                 comentario='Entrega confirmada manualmente',
@@ -180,10 +180,16 @@ class PedidoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='comprobantes/pendientes', permission_classes=[EsAdministradorOContador])
     def comprobantes_pendientes(self, request):
         comprobantes = ComprobantePago.objects.filter(estado='PENDIENTE').select_related('pedido', 'pedido__usuario')
-        return success_response(
-            data=ComprobantePagoSerializer(comprobantes, many=True).data,
-            message='Comprobantes pendientes obtenidos exitosamente.',
-        )
+        data = []
+        for c in comprobantes:
+            u = c.pedido.usuario
+            nombre_partes = [getattr(u, 'primer_nombre', '') or '', getattr(u, 'primer_apellido', '') or '']
+            cliente_nombre = ' '.join(p for p in nombre_partes if p).strip() or getattr(u, 'username', '') or 'Cliente'
+            item = ComprobantePagoSerializer(c).data
+            item['cliente_nombre'] = cliente_nombre
+            item['pedido_numero'] = f'#{c.pedido_id}'
+            data.append(item)
+        return success_response(data=data, message='Comprobantes pendientes obtenidos exitosamente.')
 
 
 class VerificarComprobanteView(viewsets.ViewSet):
@@ -219,5 +225,6 @@ class HistorialComprasView(APIView):
             data=PedidoSerializer(pedidos, many=True).data,
             message='Historial de compras obtenido exitosamente.',
         )
+
 
 

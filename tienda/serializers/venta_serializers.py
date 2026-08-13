@@ -1,4 +1,4 @@
-from rest_framework import serializers
+﻿from rest_framework import serializers
 
 from tienda.models import ComisionVenta, LiquidacionMensual
 
@@ -34,3 +34,17 @@ class GenerarLiquidacionSerializer(serializers.Serializer):
 
 class MarcarPagadaSerializer(serializers.Serializer):
     comprobante_pago = serializers.FileField()
+
+
+class ResumenVendedorSerializer(serializers.Serializer):
+    """Resumen consolidado de un vendedor para la vista de liquidaciones del contador."""
+    vendedor_id = serializers.IntegerField()
+    vendedor_nombre = serializers.CharField()
+    vendedor_email = serializers.EmailField()
+    total_pares_mes = serializers.IntegerField()
+    total_comisiones_mes = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_comisiones_historico = serializers.DecimalField(max_digits=10, decimal_places=2)
+    liquidacion_id = serializers.IntegerField(allow_null=True)
+    liquidacion_pagada = serializers.BooleanField()
+    fecha_pago = serializers.DateTimeField(allow_null=True)
+    comprobante_pago_url = serializers.CharField(allow_null=True)

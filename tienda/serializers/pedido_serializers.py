@@ -1,4 +1,4 @@
-from rest_framework import serializers
+﻿from rest_framework import serializers
 
 from tienda.models import (
     Carrito,
@@ -65,17 +65,42 @@ class CarritoSerializer(serializers.ModelSerializer):
 
 class DetallePedidoSerializer(serializers.ModelSerializer):
     variante_producto = VarianteProductoSerializer(read_only=True)
+    producto_nombre = serializers.SerializerMethodField()
+    talla = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = DetallePedido
-        fields = ['id', 'variante_producto', 'cantidad', 'precio_unitario', 'subtotal']
+        fields = ['id', 'variante_producto', 'cantidad', 'precio_unitario', 'subtotal',
+                  'producto_nombre', 'talla', 'color', 'imagen_url']
+
+    def get_producto_nombre(self, obj):
+        try: return obj.variante_producto.producto.nombre
+        except Exception: return ''
+
+    def get_talla(self, obj):
+        try: return str(obj.variante_producto.talla.valor)
+        except Exception: return ''
+
+    def get_color(self, obj):
+        try: return obj.variante_producto.color or 'Estandar'
+        except Exception: return ''
+
+    def get_imagen_url(self, obj):
+        try:
+            img = obj.variante_producto.producto.imagen_principal
+            if not img: return None
+            request = self.context.get('request')
+            return request.build_absolute_uri(img.url) if request else img.url
+        except Exception: return None
 
 
 class DireccionEnvioPedidoSerializer(serializers.ModelSerializer):
     class Meta:
         model = DireccionEnvioPedido
         fields = [
-            'direccion_formateada', 'referencia_adicional', 'ciudad',
+            'direccion_formateada', 'referencia_adicional', 'ciudad', 'provincia', 'telefono_contacto',
         ]
 
 
@@ -108,20 +133,79 @@ class PedidoSerializer(serializers.ModelSerializer):
     direccion_envio = DireccionEnvioPedidoSerializer(read_only=True)
     vendedor_codigo = serializers.CharField(source='vendedor.perfil_vendedor.codigo_vendedor', read_only=True, default=None)
 
+    # Campos calculados para el frontend
+    cliente_nombre = serializers.SerializerMethodField()
+    cliente_telefono = serializers.SerializerMethodField()
+    cliente_email = serializers.SerializerMethodField()
+    vendedor_nombre = serializers.SerializerMethodField()
+    provincia = serializers.SerializerMethodField()
+    numero = serializers.SerializerMethodField()
+
     class Meta:
         model = Pedido
         fields = [
-            'id', 'usuario', 'vendedor', 'vendedor_codigo', 'tipo_entrega',
-            'direccion_envio', 'costo_envio', 'costo_envio_definido',
+            'id', 'numero', 'usuario', 'cliente_nombre', 'cliente_telefono', 'cliente_email',
+            'vendedor', 'vendedor_nombre', 'vendedor_codigo', 'tipo_entrega',
+            'direccion_envio', 'provincia', 'costo_envio', 'costo_envio_definido',
             'subtotal', 'total', 'estado', 'numero_guia',
             'detalles', 'historial', 'comprobante_pago',
             'creado_en', 'actualizado_en',
         ]
         read_only_fields = ['usuario', 'subtotal', 'total', 'estado', 'numero_guia']
 
+    def get_numero(self, obj):
+        return f'#{obj.pk}'
+
+    def get_cliente_nombre(self, obj):
+        u = obj.usuario
+        if not u:
+            return None
+        partes = [
+            u.primer_nombre or getattr(u, 'first_name', '') or '',
+            u.primer_apellido or getattr(u, 'last_name', '') or '',
+        ]
+        nombre = ' '.join(p for p in partes if p).strip()
+        return nombre or u.username or None
+
+    def get_cliente_telefono(self, obj):
+        # Prefer the phone from the shipping address (entered at checkout)
+        try:
+            t = obj.direccion_envio.telefono_contacto
+            if t:
+                return t
+        except Exception:
+            pass
+        u = obj.usuario
+        if not u:
+            return ''
+        return getattr(u, 'telefono', '') or ''
+
+    def get_cliente_email(self, obj):
+        u = obj.usuario
+        if not u:
+            return ''
+        return getattr(u, 'email', '') or ''
+
+    def get_vendedor_nombre(self, obj):
+        v = obj.vendedor
+        if not v:
+            return None
+        partes = [
+            v.primer_nombre or getattr(v, 'first_name', '') or '',
+            v.primer_apellido or getattr(v, 'last_name', '') or '',
+        ]
+        nombre = ' '.join(p for p in partes if p).strip()
+        return nombre or v.username or None
+
+    def get_provincia(self, obj):
+        try:
+            return obj.direccion_envio.provincia or ''
+        except Exception:
+            return ''
+
 
 class CrearPedidoSerializer(serializers.Serializer):
-    """Input para generar el pedido a partir del carrito. Acepta direccion_envio (frontend) o direccion_formateada."""
+    """Input para generar el pedido a partir del carrito."""
     vendedor_id = serializers.IntegerField(required=False, allow_null=True)
     tipo_entrega = serializers.ChoiceField(choices=['DOMICILIO', 'RETIRO_LOCAL'], required=False, default='DOMICILIO')
 
@@ -138,11 +222,8 @@ class CrearPedidoSerializer(serializers.Serializer):
         elif 'direccion_envio' in attrs:
             attrs.pop('direccion_envio')
 
-        attrs.pop('provincia', None)
-        attrs.pop('telefono_contacto', None)
-
         if not attrs.get('direccion_formateada'):
-            attrs['direccion_formateada'] = 'Retiro en local' if attrs.get('tipo_entrega') == 'RETIRO_LOCAL' else 'DirecciÃ³n no especificada'
+            attrs['direccion_formateada'] = 'Retiro en local' if attrs.get('tipo_entrega') == 'RETIRO_LOCAL' else 'Direccion no especificada'
 
         if not attrs.get('ciudad'):
             attrs['ciudad'] = 'Quito'
@@ -151,5 +232,8 @@ class CrearPedidoSerializer(serializers.Serializer):
 
 
 class DefinirCostoEnvioSerializer(serializers.Serializer):
-    """Solo el administrador: define/edita manualmente el costo de envÃ­o de un pedido puntual."""
     costo_envio = serializers.DecimalField(max_digits=8, decimal_places=2, min_value=0)
+
+
+
+
