@@ -22,6 +22,10 @@ ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'drip
 CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://tienda.dripdiamond.store,https://dripdiamond.store,https://www.dripdiamond.store').split(',') if o.strip()
 ]
+for origin in ["https://tienda.dripdiamond.store", "https://dripdiamond.store", "https://www.dripdiamond.store"]:
+    if origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
+
 
 
 # ------------------------------------------------------------------
@@ -184,7 +188,14 @@ CORS_ALLOWED_ORIGINS = [
         'https://tienda.dripdiamond.store,https://dripdiamond.store,https://www.dripdiamond.store,http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173'
     ).split(',') if o.strip()
 ]
+
+# Asegurar que los dominios de producción siempre estén permitidos
+for origin in ["https://tienda.dripdiamond.store", "https://dripdiamond.store", "https://www.dripdiamond.store"]:
+    if origin not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(origin)
+
 CORS_ALLOW_CREDENTIALS = True
+
 
 CORS_ALLOW_METHODS = [
     "DELETE",
