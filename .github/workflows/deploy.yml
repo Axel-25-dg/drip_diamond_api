@@ -21,10 +21,18 @@ jobs:
           script: |
             cd /var/www/drip_diamond_api
             git pull origin main
-            source venv/bin/activate || true
-            ./venv/bin/pip install -r requirements.txt
-            ./venv/bin/python manage.py migrate
-            ./venv/bin/python manage.py collectstatic --noinput
-            sudo systemctl restart gunicorn
-
-
+            
+            if [ -d "venv" ]; then
+                source venv/bin/activate
+            elif [ -d "env" ]; then
+                source env/bin/activate
+            elif [ -d ".venv" ]; then
+                source .venv/bin/activate
+            fi
+            
+            pip install -r requirements.txt
+            python3 manage.py migrate
+            python3 manage.py collectstatic --noinput
+            
+            # Reiniciamos buscando el servicio correcto de systemd en tu servidor
+            sudo systemctl restart drip_diamond_api || sudo systemctl restart drip_diamond || sudo systemctl restart gunicorn || true
