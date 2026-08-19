@@ -5,21 +5,17 @@
 {% block preheader %}Detectamos actividad inusual en tu cuenta de Drip Diamond. Revisa este aviso.{% endblock %}
 
 {% block encabezado %}
-<!-- Logo de la marca -->
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-</div>
 Alerta de seguridad
 {% endblock %}
 
 {% block contenido %}
 
-<p style="margin:0 0 20px 0;color:#c8bfe8;">
-  Hola <strong style="color:#f0eeff;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
+<p style="margin:0 0 20px 0;color:#a8c8e0;">
+  Hola <strong style="color:#e8f4fc;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
 </p>
 
-<p style="margin:0 0 24px 0;color:#b0a8c8;">
-  Detectamos actividad inusual en tu cuenta de <strong style="color:#a855f7;">Drip Diamond</strong>.
+<p style="margin:0 0 24px 0;color:#a8c8e0;">
+  Detectamos actividad inusual en tu cuenta de <strong style="color:var(--accent);">Drip Diamond</strong>.
   Te informamos de inmediato para que tomes las medidas necesarias.
 </p>
 
@@ -27,7 +23,7 @@ Alerta de seguridad
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
   style="border-collapse:collapse;margin:0 0 24px 0;">
   <tr>
-    <td style="background:#1a0a0a;border:2px solid #ef4444;border-radius:12px;padding:20px;text-align:center;">
+    <td style="background:#1a0808;border:2px solid #ef4444;border-radius:12px;padding:20px;text-align:center;">
       <p style="margin:0;font-size:16px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:2px;">
         Actividad Inusual Detectada
       </p>
@@ -37,66 +33,46 @@ Alerta de seguridad
 
 <!-- Alert detail -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  style="border-collapse:collapse;background:#0c1a2e;border:1px solid #0e2a42;border-radius:10px;margin:0 0 24px 0;">
   <tr>
     <td style="width:4px;background:#ef4444;border-radius:10px 0 0 10px;">&nbsp;</td>
     <td style="padding:16px 20px;">
-      <p style="margin:0 0 6px 0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+      <p style="margin:0 0 6px 0;font-size:11px;color:#3a6a8a;letter-spacing:1.5px;text-transform:uppercase;">
         Detalle del evento
       </p>
-      <p style="margin:0;font-size:14px;color:#f0eeff;">{{ detalle }}</p>
+      <p style="margin:0;font-size:14px;color:#e8f4fc;">{{ detalle }}</p>
     </td>
   </tr>
 </table>
 
 <!-- What to do -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  style="border-collapse:collapse;background:#0c1a2e;border:1px solid #0e2a42;border-radius:10px;margin:0 0 24px 0;">
   <tr>
-    <td style="padding:16px 20px;border-bottom:1px solid #2a2a3e;">
-      <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+    <td style="padding:16px 20px;border-bottom:1px solid #0e2238;">
+      <p style="margin:0;font-size:11px;color:#3a6a8a;letter-spacing:1.5px;text-transform:uppercase;">
         ¿Qué debes hacer?
       </p>
     </td>
   </tr>
   <tr>
     <td style="padding:16px 20px;">
-      <p style="margin:0 0 12px 0;font-size:14px;color:#b0a8c8;line-height:1.5;">
-        Si <strong style="color:#f0eeff;">reconoces esta actividad</strong>, no necesitas hacer nada.
+      <p style="margin:0 0 12px 0;font-size:14px;color:#a8c8e0;line-height:1.5;">
+        Si <strong style="color:#e8f4fc;">reconoces esta actividad</strong>, no necesitas hacer nada.
       </p>
-      <p style="margin:0 0 12px 0;font-size:14px;color:#b0a8c8;line-height:1.5;">
+      <p style="margin:0 0 12px 0;font-size:14px;color:#a8c8e0;line-height:1.5;">
         Si <strong style="color:#f87171;">NO reconoces esta actividad</strong>, cambia tu contraseña de inmediato.
       </p>
-      <p style="margin:0;font-size:14px;color:#b0a8c8;line-height:1.5;">
+      <p style="margin:0;font-size:14px;color:#a8c8e0;line-height:1.5;">
         Responde a este correo si necesitas ayuda de nuestro equipo de soporte.
       </p>
     </td>
   </tr>
 </table>
 
-<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
-  En <strong style="color:#7c6fa0;">Drip Diamond</strong> jamás te pediremos tu contraseña
+<p style="margin:0 0 32px 0;font-size:13px;color:#3a6a8a;">
+  En <strong style="color:#5b8db8;">Drip Diamond</strong> jamás te pediremos tu contraseña
   por correo, WhatsApp o redes sociales.
 </p>
-
-<!-- Footer / Redes Sociales -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
-  <tr>
-    <td align="center" style="padding-top:20px;">
-      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
-      
-      <!-- Iconos de Redes Sociales -->
-      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
-      </a>
-      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
-      </a>
-      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
-      </a>
-    </td>
-  </tr>
-</table>
 
 {% endblock %}

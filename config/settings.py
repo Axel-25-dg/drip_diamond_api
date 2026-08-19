@@ -16,7 +16,7 @@ load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'inseguro-cambiar-en-produccion')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',') if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'dripdiamond.store,tienda.dripdiamond.store,www.dripdiamond.store,127.0.0.1,localhost').split(',') if h.strip()]
 
 # Necesario en producción detrás de HTTPS con dominio propio (ej. despliegue con Nginx/Gunicorn)
 CSRF_TRUSTED_ORIGINS = [
@@ -177,7 +177,9 @@ SIMPLE_JWT = {
 # ------------------------------------------------------------------
 # CORS (solo web)
 # ------------------------------------------------------------------
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
+CORS_ALLOWED_ORIGINS = [
+    o.strip() for o in os.environ.get('CORS_ALLOWED_ORIGINS', 'https://tienda.dripdiamond.store,https://dripdiamond.store').split(',') if o.strip()
+]
 CORS_ALLOW_CREDENTIALS = True
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
@@ -204,8 +206,8 @@ IVA_PORCENTAJE = 15                 # % vigente Ecuador — ajustar según norma
 # ------------------------------------------------------------------
 # Email — Soporta Gmail SMTP y la API HTTP de Resend
 # ------------------------------------------------------------------
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-responder@zapatillas.ec')
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'contacto@dripdiamond.store')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://tienda.dripdiamond.store')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -217,7 +219,9 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    import sys
+    if 'test' not in sys.argv:
+        SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000

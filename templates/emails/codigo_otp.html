@@ -5,33 +5,30 @@
 {% block preheader %}Tu código OTP de 6 dígitos para restablecer tu contraseña. Válido por 10 minutos.{% endblock %}
 
 {% block encabezado %}
-<!-- Logo de la marca -->
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-</div>
 Código de verificación
 {% endblock %}
 
 {% block contenido %}
 
-<p style="margin:0 0 20px 0;color:#c8bfe8;">
-  Hola <strong style="color:#f0eeff;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
+<p style="margin:0 0 20px 0;color:#a8c8e0;">
+  Hola <strong style="color:#e8f4fc;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
 </p>
 
-<p style="margin:0 0 24px 0;color:#b0a8c8;">
+<p style="margin:0 0 24px 0;color:#a8c8e0;">
   Recibimos una solicitud para restablecer la contraseña de tu cuenta en
-  <strong style="color:#a855f7;">Drip Diamond</strong>. Usa el siguiente código de 6 dígitos:
+  <strong style="color:var(--accent);">Drip Diamond</strong>. Usa el siguiente código de 6 dígitos:
 </p>
 
 <!-- OTP Code Block -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:0 0 28px 0;">
   <tr>
     <td align="center">
-      <div style="display:inline-block;background:#1a1a2e;border:2px solid #7c3aed; border-radius:12px;padding:24px 40px;">
-        <p style="margin:0 0 8px 0;font-size:11px;color:#7c6fa0;letter-spacing:2px;text-transform:uppercase;">
+      <div style="display:inline-block;background:#0c1a2e;border:2px solid #06b6d4;border-radius:12px;padding:24px 40px;">
+        <p style="margin:0 0 8px 0;font-size:11px;color:#3a6a8a;letter-spacing:2px;text-transform:uppercase;">
           Tu código OTP
         </p>
-        <p style="margin:0;font-family:'Courier New',monospace;font-size:40px;font-weight:900; letter-spacing:12px;color:#a855f7;line-height:1;">
+        <p style="margin:0;font-family:'Courier New',monospace;font-size:40px;font-weight:900;
+                  letter-spacing:6px;color:#06b6d4;line-height:1;">
           {{ codigo }}
         </p>
       </div>
@@ -40,7 +37,8 @@ Código de verificación
 </table>
 
 <!-- Warning card -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background:#1a120a;border:1px solid #3a2510;border-radius:10px;margin:0 0 20px 0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="border-collapse:collapse;background:#1a0f00;border:1px solid #3a2a00;border-radius:10px;margin:0 0 20px 0;">
   <tr>
     <td style="width:4px;background:#f59e0b;border-radius:10px 0 0 10px;">&nbsp;</td>
     <td style="padding:14px 18px;">
@@ -52,28 +50,8 @@ Código de verificación
   </tr>
 </table>
 
-<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
+<p style="margin:0 0 32px 0;font-size:13px;color:#3a6a8a;">
   Si no solicitaste este código, puedes ignorar este correo. Tu cuenta permanece segura.
 </p>
-
-<!-- Footer / Redes Sociales -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
-  <tr>
-    <td align="center" style="padding-top:20px;">
-      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
-      
-      <!-- Iconos de Redes Sociales -->
-      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
-      </a>
-      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
-      </a>
-      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
-      </a>
-    </td>
-  </tr>
-</table>
 
 {% endblock %}

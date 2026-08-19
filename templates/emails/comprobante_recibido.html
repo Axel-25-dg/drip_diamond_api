@@ -5,23 +5,19 @@
 {% block preheader %}Recibimos tu comprobante del pedido #{{ pedido.id }}. Estamos verificando tu pago.{% endblock %}
 
 {% block encabezado %}
-<!-- Logo de la marca -->
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-</div>
 Comprobante recibido
 {% endblock %}
 
 {% block contenido %}
 
-<p style="margin:0 0 20px 0;color:#c8bfe8;">
-  Hola <strong style="color:#f0eeff;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
+<p style="margin:0 0 20px 0;color:#a8c8e0;">
+  Hola <strong style="color:#e8f4fc;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
 </p>
 
-<p style="margin:0 0 24px 0;color:#b0a8c8;">
+<p style="margin:0 0 24px 0;color:#a8c8e0;">
   Recibimos el comprobante de pago de tu pedido
-  <strong style="color:#a855f7;">#{{ pedido.id }}</strong>.
-  Nuestro equipo está verificando la transferencia — esto toma máximo <strong style="color:#f0eeff;">24 horas hábiles</strong>.
+  <strong style="color:var(--accent);">#{{ pedido.id }}</strong>.
+  Nuestro equipo está verificando la transferencia — esto toma máximo <strong style="color:#e8f4fc;">24 horas hábiles</strong>.
 </p>
 
 <!-- Status indicator -->
@@ -29,7 +25,7 @@ Comprobante recibido
   style="border-collapse:collapse;margin:0 0 24px 0;">
   <tr>
     <td align="center">
-      <div style="display:inline-block;background:#0a1a14;border:2px solid #10b981;border-radius:12px;
+      <div style="display:inline-block;background:#071a10;border:2px solid #10b981;border-radius:12px;
                   padding:20px 36px;text-align:center;">
         <p style="margin:0;font-size:14px;font-weight:700;color:#10b981;letter-spacing:1.5px;text-transform:uppercase;">
           Estado: En revisión
@@ -42,7 +38,7 @@ Comprobante recibido
 
 <!-- Info card -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="border-collapse:collapse;background:#0a1a10;border:1px solid #1a3a20;border-radius:10px;margin:0 0 20px 0;">
+  style="border-collapse:collapse;background:#071a10;border:1px solid #0a3018;border-radius:10px;margin:0 0 20px 0;">
   <tr>
     <td style="width:4px;background:#10b981;border-radius:10px 0 0 10px;">&nbsp;</td>
     <td style="padding:14px 18px;">
@@ -53,28 +49,8 @@ Comprobante recibido
   </tr>
 </table>
 
-<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
+<p style="margin:0 0 32px 0;font-size:13px;color:#3a6a8a;">
   Si tienes dudas sobre tu comprobante, responde a este correo adjuntando nuevamente la imagen.
 </p>
-
-<!-- Footer / Redes Sociales -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
-  <tr>
-    <td align="center" style="padding-top:20px;">
-      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
-      
-      <!-- Iconos de Redes Sociales -->
-      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
-      </a>
-      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
-      </a>
-      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
-      </a>
-    </td>
-  </tr>
-</table>
 
 {% endblock %}

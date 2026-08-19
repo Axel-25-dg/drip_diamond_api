@@ -177,6 +177,31 @@ class PedidoViewSet(viewsets.ModelViewSet):
             )
         return success_response(data=PedidoSerializer(pedido).data, message='Pedido entregado. Comision generada al vendedor.')
 
+
+    @action(detail=True, methods=['post'], url_path='cancelar', permission_classes=[permissions.IsAuthenticated])
+    def cancelar(self, request, pk=None):
+        """El cliente puede cancelar su pedido si aun esta en PENDIENTE_DE_PAGO o PAGO_RECHAZADO."""
+        pedido = self.get_object()
+        usuario = request.user
+
+        # Solo el dueno del pedido o un admin puede cancelar
+        if not (usuario.es_administrador or pedido.usuario == usuario):
+            return error_response(message='No tienes permiso para cancelar este pedido.', status=403)
+
+        estados_cancelables = {'PENDIENTE_DE_PAGO', 'COMPROBANTE_ENVIADO', 'PAGO_RECHAZADO'}
+        if pedido.estado not in estados_cancelables:
+            return error_response(
+                message=f'No se puede cancelar un pedido en estado "{pedido.get_estado_display()}". Solo se pueden cancelar pedidos pendientes de pago.',
+                status=400
+            )
+
+        pedido.cambiar_estado(
+            EstadoPedido.CANCELADO,
+            comentario='Cancelado por el cliente.',
+            usuario_responsable=usuario,
+        )
+        return success_response(data=PedidoSerializer(pedido).data, message='Pedido cancelado correctamente.')
+
     @action(detail=False, methods=['get'], url_path='comprobantes/pendientes', permission_classes=[EsAdministradorOContador])
     def comprobantes_pendientes(self, request):
         comprobantes = ComprobantePago.objects.filter(estado='PENDIENTE').select_related('pedido', 'pedido__usuario')
@@ -225,6 +250,8 @@ class HistorialComprasView(APIView):
             data=PedidoSerializer(pedidos, many=True).data,
             message='Historial de compras obtenido exitosamente.',
         )
+
+
 
 
 

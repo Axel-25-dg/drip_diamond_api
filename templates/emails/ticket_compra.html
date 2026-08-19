@@ -5,41 +5,37 @@
 {% block preheader %}Ticket de compra de tu pedido #{{ pedido.id }} por ${{ pedido.total }}.{% endblock %}
 
 {% block encabezado %}
-<!-- Logo de la marca -->
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-</div>
 Ticket de compra
 {% endblock %}
 
 {% block contenido %}
 
-<p style="margin:0 0 20px 0;color:#c8bfe8;">
-  Hola <strong style="color:#f0eeff;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
+<p style="margin:0 0 20px 0;color:#a8c8e0;">
+  Hola <strong style="color:#e8f4fc;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
 </p>
 
-<p style="margin:0 0 24px 0;color:#b0a8c8;">
-  Aquí tienes el ticket de tu compra en <strong style="color:#a855f7;">Drip Diamond</strong>.
+<p style="margin:0 0 24px 0;color:#a8c8e0;">
+  Aquí tienes el ticket de tu compra en <strong style="color:var(--accent);">Drip Diamond</strong>.
   Guárdalo como comprobante de tu pedido.
 </p>
 
 <!-- Ticket card -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:12px;margin:0 0 24px 0;overflow:hidden;">
+  style="border-collapse:collapse;background:#0c1a2e;border:1px solid #0e2a42;border-radius:12px;margin:0 0 24px 0;overflow:hidden;">
 
   <!-- Ticket header -->
   <tr>
-    <td style="background:linear-gradient(135deg,#1a0a2e,#0d1a2e);padding:16px 24px;border-bottom:1px solid #2a2a3e;">
+    <td style="background:linear-gradient(135deg,#071828,#0a1a2e);padding:16px 24px;border-bottom:1px solid #0e2238;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
           <td>
-            <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+            <p style="margin:0;font-size:11px;color:#3a6a8a;letter-spacing:1.5px;text-transform:uppercase;">
               Pedido
             </p>
-            <p style="margin:4px 0 0 0;font-size:20px;font-weight:800;color:#a855f7;">#{{ pedido.id }}</p>
+            <p style="margin:4px 0 0 0;font-size:20px;font-weight:800;color:var(--accent);">#{{ pedido.id }}</p>
           </td>
           <td align="right">
-            <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+            <p style="margin:0;font-size:11px;color:#3a6a8a;letter-spacing:1.5px;text-transform:uppercase;">
               Estado
             </p>
             <p style="margin:4px 0 0 0;font-size:14px;font-weight:700;color:#10b981;">
@@ -54,8 +50,8 @@ Ticket de compra
   <!-- Products -->
   {% if pedido.detalles.all %}
   <tr>
-    <td style="padding:16px 24px;border-bottom:1px solid #2a2a3e;">
-      <p style="margin:0 0 12px 0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+    <td style="padding:16px 24px;border-bottom:1px solid #0e2238;">
+      <p style="margin:0 0 12px 0;font-size:11px;color:#3a6a8a;letter-spacing:1.5px;text-transform:uppercase;">
         Productos
       </p>
       {% for detalle in pedido.detalles.all %}
@@ -64,15 +60,15 @@ Ticket de compra
         style="border-collapse:collapse;">
         <tr>
           <td>
-            <p style="margin:0;font-size:14px;color:#f0eeff;font-weight:600;">
+            <p style="margin:0;font-size:14px;color:#e8f4fc;font-weight:600;">
               {{ detalle.variante_producto.producto.nombre }}
             </p>
-            <p style="margin:2px 0 0 0;font-size:12px;color:#7c6fa0;">
+            <p style="margin:2px 0 0 0;font-size:12px;color:#3a6a8a;">
               Talla {{ detalle.variante_producto.talla }} · {{ detalle.variante_producto.color }} · x{{ detalle.cantidad }}
             </p>
           </td>
           <td align="right" style="white-space:nowrap;">
-            <p style="margin:0;font-size:14px;color:#c8bfe8;font-weight:600;">${{ detalle.subtotal }}</p>
+            <p style="margin:0;font-size:14px;color:#a8c8e0;font-weight:600;">${{ detalle.subtotal }}</p>
           </td>
         </tr>
       </table>
@@ -87,23 +83,23 @@ Ticket de compra
     <td style="padding:16px 24px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
-          <td style="padding:4px 0;font-size:13px;color:#7c6fa0;">Subtotal</td>
-          <td style="padding:4px 0;font-size:13px;color:#c8bfe8;text-align:right;">${{ pedido.subtotal }}</td>
+          <td style="padding:4px 0;font-size:13px;color:#3a6a8a;">Subtotal</td>
+          <td style="padding:4px 0;font-size:13px;color:#a8c8e0;text-align:right;">${{ pedido.subtotal }}</td>
         </tr>
         <tr>
-          <td style="padding:4px 0;font-size:13px;color:#7c6fa0;">Envío</td>
-          <td style="padding:4px 0;font-size:13px;color:#c8bfe8;text-align:right;">
+          <td style="padding:4px 0;font-size:13px;color:#3a6a8a;">Envío</td>
+          <td style="padding:4px 0;font-size:13px;color:#a8c8e0;text-align:right;">
             {% if pedido.costo_envio_definido %}${{ pedido.costo_envio }}{% else %}Por definir{% endif %}
           </td>
         </tr>
         <tr>
           <td colspan="2" style="padding:8px 0;">
-            <div style="height:1px;background:#2a2a3e;"></div>
+            <div style="height:1px;background:#0e2238;"></div>
           </td>
         </tr>
         <tr>
-          <td style="padding:4px 0;font-size:16px;color:#a855f7;font-weight:700;">Total</td>
-          <td style="padding:4px 0;font-size:20px;color:#a855f7;font-weight:900;text-align:right;">
+          <td style="padding:4px 0;font-size:16px;color:var(--accent);font-weight:700;">Total</td>
+          <td style="padding:4px 0;font-size:20px;color:var(--accent);font-weight:900;text-align:right;">
             ${{ pedido.total }}
           </td>
         </tr>
@@ -112,29 +108,9 @@ Ticket de compra
   </tr>
 </table>
 
-<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
+<p style="margin:0 0 32px 0;font-size:13px;color:#3a6a8a;">
   Conserva este correo como comprobante de tu compra.
   Ante cualquier inconveniente, contáctanos respondiendo a este mensaje.
 </p>
-
-<!-- Footer / Redes Sociales -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
-  <tr>
-    <td align="center" style="padding-top:20px;">
-      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
-      
-      <!-- Iconos de Redes Sociales -->
-      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
-      </a>
-      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
-      </a>
-      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
-      </a>
-    </td>
-  </tr>
-</table>
 
 {% endblock %}

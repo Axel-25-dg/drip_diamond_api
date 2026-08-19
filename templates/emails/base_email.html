@@ -12,6 +12,26 @@
   <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
   <![endif]-->
   <style>
+    :root{
+      --bg:#050d18;
+      --card:#0c1a2e;
+      --accent:#06b6d4;   /* celeste principal */
+      --accent-2:#0284c7; /* azul medio */
+      --accent-3:#0ea5e9; /* celeste claro */
+      --muted:#5b8db8;
+      --text:#e8f4fc;
+    }
+    @media (prefers-color-scheme: light) {
+      :root{
+        --bg:#f0f8ff;
+        --card:#ffffff;
+        --accent:#0284c7;
+        --accent-2:#0ea5e9;
+        --accent-3:#06b6d4;
+        --muted:#4a7a9b;
+        --text:#0b1a2e;
+      }
+    }
     * { box-sizing: border-box; }
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
@@ -22,13 +42,14 @@
       .mobile-center { text-align: center !important; }
       .hide-mobile { display: none !important; }
     }
-  </style>
+      /* Preferencias de tema en clientes modernos */
+    </style>
   <!--[if mso]><style>
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     img { -ms-interpolation-mode: bicubic; }
   </style><![endif]-->
 </head>
-<body style="margin:0;padding:0;background-color:#0a0a0f;word-break:break-word;">
+  <body style="margin:0;padding:0;background-color:var(--bg);word-break:break-word;">
 
 <!-- Preheader invisible -->
 <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#0a0a0f;">
@@ -37,19 +58,19 @@
 </div>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="background-color:#0a0a0f;border-collapse:collapse;">
+  style="background-color:#050d18;border-collapse:collapse;">
   <tr>
     <td align="center" style="padding:32px 16px;">
 
       <!-- Card container -->
       <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0"
         style="width:100%;max-width:600px;border-collapse:collapse;border-radius:16px;overflow:hidden;
-               background-color:#13131a;border:1px solid #1e1e2e;">
+               background-color:#0c1a2e;border:1px solid #0e2a42;">
 
         <!-- ═══ HEADER ═══ -->
         <tr>
-          <td style="background:linear-gradient(135deg,#0d0d1a 0%,#1a0a2e 50%,#0d1a2e 100%);
-                     padding:36px 32px 32px 32px;text-align:center;border-bottom:1px solid #1e1e3a;">
+          <td style="background:linear-gradient(135deg,#050d18 0%,#0a1a2e 50%,#071828 100%);
+                     padding:36px 32px 32px 32px;text-align:center;border-bottom:1px solid #0e2a42;">
             <!-- Brand Logo -->
             <div style="display:inline-block;margin-bottom:16px;">
               <!--[if mso]>
@@ -68,7 +89,7 @@
               DRIP DIAMOND
             </h1>
             <p style="margin:0;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;
-                      color:#7c6fa0;letter-spacing:3px;text-transform:uppercase;">
+                      color:#5b8db8;letter-spacing:3px;text-transform:uppercase;">
               SNEAKERS PREMIUM
             </p>
           </td>
@@ -76,7 +97,7 @@
 
         <!-- ═══ HERO ACCENT BAR ═══ -->
         <tr>
-          <td style="height:3px;background:linear-gradient(90deg,#7c3aed,#a855f7,#06b6d4,#7c3aed);
+          <td style="height:3px;background:linear-gradient(90deg,#0284c7,#06b6d4,#7dd3fc,#0284c7);
                      background-size:200% 100%;"></td>
         </tr>
 
@@ -92,7 +113,7 @@
 
             <!-- Main content -->
             <div style="font-family:'Segoe UI',Arial,sans-serif;font-size:15px;
-                        color:#b0a8c8;line-height:1.7;">
+                        color:#a8c8e0;line-height:1.7;">
               {% block contenido %}{% endblock %}
             </div>
 
@@ -102,7 +123,7 @@
         <!-- ═══ DIVIDER ═══ -->
         <tr>
           <td style="padding:0 40px;">
-            <div style="height:1px;background:linear-gradient(90deg,transparent,#2a2a3e,transparent);"></div>
+            <div style="height:1px;background:linear-gradient(90deg,transparent,#0e2a42,transparent);"></div>
           </td>
         </tr>
 
@@ -110,28 +131,35 @@
         <tr>
           <td style="padding:24px 40px;" align="center">
             <p style="margin:0 0 16px 0;font-family:'Segoe UI',Arial,sans-serif;
-                      font-size:12px;color:#5a527a;letter-spacing:1px;text-transform:uppercase;">
+                      font-size:12px;color:#3a6a8a;letter-spacing:1px;text-transform:uppercase;">
               Síguenos
             </p>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
               <tr>
                 <td style="padding:0 6px;">
                   <a href="{{ instagram_url|default:'https://instagram.com/dripdiamond' }}"
-                     style="display:inline-block;width:36px;height:36px;background:#1e1e2e;border:1px solid #2a2a3e;
+                     style="display:inline-block;width:36px;height:36px;background:#0c1a2e;border:1px solid #0e2a42;
                             border-radius:8px;text-align:center;text-decoration:none;">
                     <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="18" height="18" alt="Instagram" style="display:inline-block; margin-top:8px; border:0;" />
                   </a>
                 </td>
                 <td style="padding:0 6px;">
                   <a href="{{ tiktok_url|default:'https://tiktok.com/@dripdiamond' }}"
-                     style="display:inline-block;width:36px;height:36px;background:#1e1e2e;border:1px solid #2a2a3e;
+                     style="display:inline-block;width:36px;height:36px;background:#0c1a2e;border:1px solid #0e2a42;
                             border-radius:8px;text-align:center;text-decoration:none;">
                     <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="18" height="18" alt="TikTok" style="display:inline-block; margin-top:8px; border:0;" />
                   </a>
                 </td>
                 <td style="padding:0 6px;">
-                  <a href="mailto:{{ contacto_email|default:'contacto@dripdiamond.ec' }}"
-                     style="display:inline-block;width:36px;height:36px;background:#1e1e2e;border:1px solid #2a2a3e;
+                  <a href="{{ facebook_url|default:'https://facebook.com/dripdiamond' }}"
+                     style="display:inline-block;width:36px;height:36px;background:#0c1a2e;border:1px solid #0e2a42;
+                            border-radius:8px;text-align:center;text-decoration:none;">
+                    <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="18" height="18" alt="Facebook" style="display:inline-block; margin-top:8px; border:0;" />
+                  </a>
+                </td>
+                <td style="padding:0 6px;">
+                  <a href="mailto:{{ contacto_email|default:'contacto@dripdiamond.store' }}"
+                     style="display:inline-block;width:36px;height:36px;background:#0c1a2e;border:1px solid #0e2a42;
                             border-radius:8px;text-align:center;text-decoration:none;">
                     <img src="https://cdn-icons-png.flaticon.com/24/732/732200.png" width="18" height="18" alt="Email" style="display:inline-block; margin-top:8px; border:0;" />
                   </a>
@@ -143,17 +171,17 @@
 
         <!-- ═══ FOOTER ═══ -->
         <tr>
-          <td style="background-color:#0d0d14;border-top:1px solid #1e1e2e;
+          <td style="background-color:#071014;border-top:1px solid #0e2a42;
                      padding:20px 40px;text-align:center;">
             <p style="margin:0 0 6px 0;font-family:'Segoe UI',Arial,sans-serif;
-                      font-size:11px;color:#3d3660;letter-spacing:1px;">
+                      font-size:11px;color:#1e4060;letter-spacing:1px;">
               &copy; {% now "Y" %} DRIP DIAMOND. Todos los derechos reservados.
             </p>
-            <p style="margin:0;font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#3d3660;">
+            <p style="margin:0;font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#1e4060;">
               Este es un correo automático de transacción.
               {% if baja_url %}
               &nbsp;·&nbsp;
-              <a href="{{ baja_url }}" style="color:#5a527a;text-decoration:underline;">Cancelar suscripción</a>
+              <a href="{{ baja_url }}" style="color:#3a6a8a;text-decoration:underline;">Cancelar suscripción</a>
               {% endif %}
             </p>
           </td>

@@ -5,30 +5,26 @@
 {% block preheader %}Tu comisión de {{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }} por ${{ liquidacion.total_comisiones }} fue transferida.{% endblock %}
 
 {% block encabezado %}
-<!-- Logo de la marca -->
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-</div>
 Comisión pagada
 {% endblock %}
 
 {% block contenido %}
 
-<p style="margin:0 0 20px 0;color:#c8bfe8;">
-  Hola <strong style="color:#f0eeff;">{{ liquidacion.vendedor.primer_nombre|default:liquidacion.vendedor.first_name|default:liquidacion.vendedor.username }}</strong>,
+<p style="margin:0 0 20px 0;color:#a8c8e0;">
+  Hola <strong style="color:#e8f4fc;">{{ liquidacion.vendedor.primer_nombre|default:liquidacion.vendedor.first_name|default:liquidacion.vendedor.username }}</strong>,
 </p>
 
-<p style="margin:0 0 24px 0;color:#b0a8c8;">
-  Buenas noticias: tu liquidación de comisiones de
-  <strong style="color:#a855f7;">{{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }}</strong>
-  en <strong style="color:#a855f7;">Drip Diamond</strong> fue registrada exitosamente como pagada.
+<p style="margin:0 0 24px 0;color:#a8c8e0;">
+  Tu liquidación de comisiones de
+  <strong style="color:var(--accent);">{{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }}</strong>
+  en <strong style="color:var(--accent);">Drip Diamond</strong> fue registrada exitosamente como pagada.
 </p>
 
 <!-- Payment banner -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
   style="border-collapse:collapse;margin:0 0 28px 0;">
   <tr>
-    <td style="background:linear-gradient(135deg,#0a1a0a,#0a1a2e);border:2px solid #10b981;
+    <td style="background:linear-gradient(135deg,#071a0a,#071828);border:2px solid #10b981;
                border-radius:12px;padding:28px;text-align:center;">
       <p style="margin:0 0 6px 0;font-size:13px;color:#5a8a72;letter-spacing:1.5px;text-transform:uppercase;">
         Total comisiones pagadas
@@ -44,10 +40,10 @@ Comisión pagada
 
 <!-- Summary card -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  style="border-collapse:collapse;background:#0c1a2e;border:1px solid #0e2a42;border-radius:10px;margin:0 0 24px 0;">
   <tr>
-    <td style="padding:16px 20px;border-bottom:1px solid #2a2a3e;">
-      <p style="margin:0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+    <td style="padding:16px 20px;border-bottom:1px solid #0e2238;">
+      <p style="margin:0;font-size:11px;color:#3a6a8a;letter-spacing:1.5px;text-transform:uppercase;">
         Detalle de liquidación
       </p>
     </td>
@@ -56,18 +52,18 @@ Comisión pagada
     <td style="padding:16px 20px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
-          <td style="padding:4px 0;font-size:14px;color:#7c6fa0;">Periodo</td>
-          <td style="padding:4px 0;font-size:14px;color:#f0eeff;text-align:right;font-weight:600;">
+          <td style="padding:4px 0;font-size:14px;color:#3a6a8a;">Periodo</td>
+          <td style="padding:4px 0;font-size:14px;color:#e8f4fc;text-align:right;font-weight:600;">
             {{ liquidacion.periodo_mes }}/{{ liquidacion.periodo_anio }}
           </td>
         </tr>
         <tr>
-          <td style="padding:4px 0;font-size:14px;color:#7c6fa0;">Pares vendidos</td>
-          <td style="padding:4px 0;font-size:14px;color:#c8bfe8;text-align:right;">{{ liquidacion.total_pares }}</td>
+          <td style="padding:4px 0;font-size:14px;color:#3a6a8a;">Pares vendidos</td>
+          <td style="padding:4px 0;font-size:14px;color:#a8c8e0;text-align:right;">{{ liquidacion.total_pares }}</td>
         </tr>
         <tr>
-          <td style="padding:4px 0;font-size:14px;color:#7c6fa0;">Comisión por par</td>
-          <td style="padding:4px 0;font-size:14px;color:#c8bfe8;text-align:right;">$4.00 USD</td>
+          <td style="padding:4px 0;font-size:14px;color:#3a6a8a;">Comisión por par</td>
+          <td style="padding:4px 0;font-size:14px;color:#a8c8e0;text-align:right;">$4.00 USD</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-size:16px;color:#10b981;font-weight:700;">Total pagado</td>
@@ -81,33 +77,13 @@ Comisión pagada
 </table>
 
 {% if liquidacion.fecha_pago %}
-<p style="margin:0 0 12px 0;font-size:13px;color:#5a527a;">
-  Fecha de pago registrada: <strong style="color:#7c6fa0;">{{ liquidacion.fecha_pago|date:"d/m/Y H:i" }}</strong>
+<p style="margin:0 0 12px 0;font-size:13px;color:#3a6a8a;">
+  Fecha de pago registrada: <strong style="color:#5b8db8;">{{ liquidacion.fecha_pago|date:"d/m/Y H:i" }}</strong>
 </p>
 {% endif %}
 
-<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
-  Gracias por formar parte del equipo <strong style="color:#7c6fa0;">Drip Diamond</strong>.
+<p style="margin:0 0 32px 0;font-size:13px;color:#3a6a8a;">
+  Gracias por formar parte del equipo <strong style="color:#5b8db8;">Drip Diamond</strong>.
 </p>
-
-<!-- Footer / Redes Sociales -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
-  <tr>
-    <td align="center" style="padding-top:20px;">
-      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
-      
-      <!-- Iconos de Redes Sociales -->
-      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
-      </a>
-      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
-      </a>
-      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
-      </a>
-    </td>
-  </tr>
-</table>
 
 {% endblock %}

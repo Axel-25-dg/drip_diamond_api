@@ -5,77 +5,53 @@
 {% block preheader %}¡Tu pedido #{{ pedido.id }} fue entregado! Gracias por confiar en Drip Diamond.{% endblock %}
 
 {% block encabezado %}
-<!-- Logo de la marca -->
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-</div>
 ¡Pedido entregado!
 {% endblock %}
 
 {% block contenido %}
 
-<p style="margin:0 0 20px 0;color:#c8bfe8;">
-  Hola <strong style="color:#f0eeff;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
+<p style="margin:0 0 20px 0;color:#a8c8e0;">
+  Hola <strong style="color:#e8f4fc;">{{ pedido.usuario.primer_nombre|default:pedido.usuario.first_name|default:pedido.usuario.username }}</strong>,
 </p>
 
-<p style="margin:0 0 24px 0;color:#b0a8c8;">
-  Tu pedido <strong style="color:#a855f7;">#{{ pedido.id }}</strong> fue marcado como entregado.
-  ¡Esperamos que disfrutes tus sneakers!
+<p style="margin:0 0 24px 0;color:#a8c8e0;">
+  Tu pedido <strong style="color:var(--accent);">#{{ pedido.id }}</strong> fue marcado como entregado.
+  Esperamos que disfrutes tus sneakers.
 </p>
 
 <!-- Success banner -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
   style="border-collapse:collapse;margin:0 0 28px 0;">
   <tr>
-    <td style="background:linear-gradient(135deg,#0d0d1a,#1a0a2e);border:2px solid #a855f7;
+    <td style="background:linear-gradient(135deg,#071828,#0a1a2e);border:2px solid var(--accent);
                border-radius:12px;padding:28px;text-align:center;">
-      <p style="margin:0;font-size:18px;font-weight:800;color:#a855f7;text-transform:uppercase;letter-spacing:2px;">
-        ¡Entregado!
+      <p style="margin:0;font-size:18px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:2px;">
+        Entregado
       </p>
-      <p style="margin:8px 0 0 0;font-size:13px;color:#7c6fa0;">Pedido #{{ pedido.id }} completado</p>
+      <p style="margin:8px 0 0 0;font-size:13px;color:#3a6a8a;">Pedido #{{ pedido.id }} completado</p>
     </td>
   </tr>
 </table>
 
 <!-- Thank you message -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:10px;margin:0 0 24px 0;">
+  style="border-collapse:collapse;background:#0c1a2e;border:1px solid #0e2a42;border-radius:10px;margin:0 0 24px 0;">
   <tr>
-    <td style="width:4px;background:linear-gradient(180deg,#a855f7,#7c3aed);border-radius:10px 0 0 10px;">&nbsp;</td>
+    <td style="width:4px;background:linear-gradient(180deg,var(--accent-2),var(--accent));border-radius:10px 0 0 10px;">&nbsp;</td>
     <td style="padding:16px 20px;">
-      <p style="margin:0 0 8px 0;font-size:14px;color:#b0a8c8;">
-        Gracias por confiar en <strong style="color:#a855f7;">Drip Diamond</strong>.
+      <p style="margin:0 0 8px 0;font-size:14px;color:#a8c8e0;">
+        Gracias por confiar en <strong style="color:var(--accent);">Drip Diamond</strong>.
       </p>
-      <p style="margin:0;font-size:14px;color:#b0a8c8;">
-        ¡Etiquétanos en tu foto con los sneakers! Nos encanta ver a nuestra comunidad.
+      <p style="margin:0;font-size:14px;color:#a8c8e0;">
+        Etiquétanos en tu foto con los sneakers. Nos encanta ver a nuestra comunidad.
       </p>
     </td>
   </tr>
 </table>
 
-<p style="margin:0 0 32px 0;font-size:13px;color:#5a527a;">
+<p style="margin:0 0 32px 0;font-size:13px;color:#3a6a8a;">
   Si tuviste algún problema con tu pedido o el producto, contáctanos de inmediato.
   Tu satisfacción es nuestra prioridad.
 </p>
-
-<!-- Footer / Redes Sociales -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
-  <tr>
-    <td align="center" style="padding-top:20px;">
-      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
-      
-      <!-- Iconos de Redes Sociales -->
-      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
-      </a>
-      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
-      </a>
-      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
-      </a>
-    </td>
-  </tr>
-</table>
 
 {% endblock %}

@@ -5,32 +5,28 @@
 {% block preheader %}{{ producto.nombre }} ahora a ${{ promocion.precio_promocional }}. ¡Solo por tiempo limitado!{% endblock %}
 
 {% block encabezado %}
-<!-- Logo de la marca -->
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://drive.google.com/thumbnail?id=1tsJEMm_smewpCxP_PlKMptO4VuHpvmCf&sz=w500" alt="Drip Diamond Logo" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-</div>
 Oferta exclusiva para ti
 {% endblock %}
 
 {% block contenido %}
 
-<p style="margin:0 0 20px 0;color:#c8bfe8;">
-  Hola <strong style="color:#f0eeff;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
+<p style="margin:0 0 20px 0;color:#a8c8e0;">
+  Hola <strong style="color:#e8f4fc;">{{ usuario.primer_nombre|default:usuario.first_name|default:usuario.username }}</strong>,
 </p>
 
-<p style="margin:0 0 24px 0;color:#b0a8c8;">
-  Tenemos una oferta especial en <strong style="color:#a855f7;">Drip Diamond</strong>
-  que no te puedes perder. ¡Solo por tiempo limitado!
+<p style="margin:0 0 24px 0;color:#a8c8e0;">
+  Tenemos una oferta especial en <strong style="color:var(--accent);">Drip Diamond</strong>
+  que no te puedes perder. Solo por tiempo limitado.
 </p>
 
 <!-- Product promo card -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-  style="border-collapse:collapse;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:12px;margin:0 0 28px 0;overflow:hidden;">
+  style="border-collapse:collapse;background:#0c1a2e;border:1px solid #0e2a42;border-radius:12px;margin:0 0 28px 0;overflow:hidden;">
 
   <!-- Promo badge -->
   <tr>
-    <td style="background:linear-gradient(135deg,#7c1a1a,#a83232);padding:10px 24px;text-align:center;">
-      <p style="margin:0;font-size:11px;font-weight:800;color:#fca5a5;letter-spacing:2px;text-transform:uppercase;">
+    <td style="background:linear-gradient(135deg,#071a2e,#0a2a4a);padding:10px 24px;text-align:center;border-bottom:1px solid #0e2a42;">
+      <p style="margin:0;font-size:11px;font-weight:800;color:#7dd3fc;letter-spacing:2px;text-transform:uppercase;">
         Oferta por tiempo limitado
       </p>
     </td>
@@ -39,34 +35,34 @@ Oferta exclusiva para ti
   <!-- Product details -->
   <tr>
     <td style="padding:24px;">
-      <p style="margin:0 0 4px 0;font-size:11px;color:#7c6fa0;letter-spacing:1.5px;text-transform:uppercase;">
+      <p style="margin:0 0 4px 0;font-size:11px;color:#3a6a8a;letter-spacing:1.5px;text-transform:uppercase;">
         {{ producto.marca|default:"Drip Diamond" }}
       </p>
-      <p style="margin:0 0 20px 0;font-size:20px;font-weight:800;color:#f0eeff;">
+      <p style="margin:0 0 20px 0;font-size:20px;font-weight:800;color:#e8f4fc;">
         {{ producto.nombre }}
       </p>
 
       {% if producto.descripcion %}
-      <p style="margin:0 0 20px 0;font-size:14px;color:#b0a8c8;line-height:1.6;">
+      <p style="margin:0 0 20px 0;font-size:14px;color:#a8c8e0;line-height:1.6;">
         {{ producto.descripcion|truncatechars:150 }}
       </p>
       {% endif %}
 
       <!-- Price display -->
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-        style="border-collapse:collapse;border-top:1px solid #2a2a3e;padding-top:16px;">
+        style="border-collapse:collapse;border-top:1px solid #0e2238;padding-top:16px;">
         <tr>
           <td style="padding-top:16px;">
             {% if producto.precio_base %}
-            <p style="margin:0 0 4px 0;font-size:13px;color:#5a527a;text-decoration:line-through;">
+            <p style="margin:0 0 4px 0;font-size:13px;color:#3a6a8a;text-decoration:line-through;">
               Antes: ${{ producto.precio_base }}
             </p>
             {% endif %}
-            <p style="margin:0;font-size:28px;font-weight:900;color:#f87171;">
+            <p style="margin:0;font-size:28px;font-weight:900;color:#06b6d4;">
               Ahora: ${{ promocion.precio_promocional }}
             </p>
             {% if producto.precio_base and promocion.precio_promocional %}
-            <p style="margin:4px 0 0 0;font-size:12px;color:#f87171;font-weight:700;">
+            <p style="margin:4px 0 0 0;font-size:12px;color:#0ea5e9;font-weight:700;">
               Ahorro significativo con esta oferta exclusiva
             </p>
             {% endif %}
@@ -84,9 +80,9 @@ Oferta exclusiva para ti
     <td align="center">
       <!--[if mso]>
       <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
-                   href="{{ producto_url|default:'https://dripdiamond.ec/tienda' }}"
+                   href="{{ producto_url|default:'https://tienda.dripdiamond.store' }}"
                    style="height:48px;v-text-anchor:middle;width:220px;"
-                   arcsize="18%" stroke="f" fillcolor="#dc2626">
+                   arcsize="18%" stroke="f" fillcolor="#0284c7">
         <w:anchorlock/>
         <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">
           Ver oferta ahora
@@ -94,8 +90,8 @@ Oferta exclusiva para ti
       </v:roundrect>
       <![endif]-->
       <!--[if !mso]><!-->
-      <a href="{{ producto_url|default:'https://dripdiamond.ec/tienda' }}"
-         style="display:inline-block;background:linear-gradient(135deg,#dc2626,#f87171);
+      <a href="{{ producto_url|default:'https://tienda.dripdiamond.store' }}"
+         style="display:inline-block;background:linear-gradient(135deg,#0284c7,#06b6d4);
                 color:#ffffff;padding:14px 32px;text-decoration:none;font-weight:700;
                 font-size:15px;border-radius:8px;letter-spacing:0.5px;">
         Ver oferta ahora &rarr;
@@ -106,31 +102,11 @@ Oferta exclusiva para ti
 </table>
 
 {% if promocion.fecha_fin %}
-<p style="margin:16px 0 32px 0;font-size:12px;color:#5a527a;text-align:center;">
-  Oferta válida hasta: <strong style="color:#7c6fa0;">{{ promocion.fecha_fin|date:"d/m/Y" }}</strong>
+<p style="margin:16px 0 32px 0;font-size:12px;color:#3a6a8a;text-align:center;">
+  Oferta válida hasta: <strong style="color:#5b8db8;">{{ promocion.fecha_fin|date:"d/m/Y" }}</strong>
 </p>
 {% else %}
 <div style="margin-bottom: 32px;"></div>
 {% endif %}
-
-<!-- Footer / Redes Sociales -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:1px solid #2a2438;padding-top:20px;">
-  <tr>
-    <td align="center" style="padding-top:20px;">
-      <p style="margin:0 0 12px 0;font-size:12px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px;">Síguenos en nuestras redes</p>
-      
-      <!-- Iconos de Redes Sociales -->
-      <a href="https://instagram.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3955/3955024.png" width="24" height="24" alt="Instagram" style="vertical-align:middle;" />
-      </a>
-      <a href="https://tiktok.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/3046/3046124.png" width="24" height="24" alt="TikTok" style="vertical-align:middle;" />
-      </a>
-      <a href="https://facebook.com" target="_blank" style="text-decoration:none;margin:0 10px;">
-        <img src="https://cdn-icons-png.flaticon.com/24/5968/5968764.png" width="24" height="24" alt="Facebook" style="vertical-align:middle;" />
-      </a>
-    </td>
-  </tr>
-</table>
 
 {% endblock %}
