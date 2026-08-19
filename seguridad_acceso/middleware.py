@@ -15,8 +15,9 @@ class ControlAccesoMiddleware(MiddlewareMixin):
     RUTAS_EXENTAS = ('/admin/',)
 
     def process_request(self, request):
-        if request.path.startswith(self.RUTAS_EXENTAS):
+        if request.method == 'OPTIONS' or request.path.startswith(self.RUTAS_EXENTAS):
             return None
+
 
         from seguridad_acceso.services import ip_esta_bloqueada
 
