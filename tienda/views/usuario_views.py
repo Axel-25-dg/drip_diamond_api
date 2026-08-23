@@ -100,8 +100,8 @@ class CrearContadorView(generics.CreateAPIView):
 
 
 class ListaVendedoresActivosView(generics.ListAPIView):
-    """Lista pÃºblica (para usuarios autenticados) de vendedores activos, elecciÃ³n obligatoria en el checkout."""
-    queryset = Usuario.objects.filter(rol=Rol.VENDEDOR, perfil_vendedor__activo=True)
+    """Lista vendedores disponibles para seleccionar en el checkout."""
+    queryset = Usuario.objects.filter(rol=Rol.VENDEDOR)
     serializer_class = UsuarioSerializer
     permission_classes = [permissions.IsAuthenticated]
 
