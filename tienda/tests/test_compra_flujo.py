@@ -173,3 +173,29 @@ class FlujoCompraTests(APITestCase):
         self.assertFalse(ComisionVenta.objects.filter(pedido=pedido).exists())
         pedido.refresh_from_db()
         self.assertEqual(pedido.estado, EstadoPedido.ENTREGADO)
+
+    def test_admin_puede_asignar_vendedor_a_pedido_existente(self):
+        carrito, _ = Carrito.objects.get_or_create(usuario=self.cliente)
+        ItemCarrito.objects.create(carrito=carrito, variante_producto=self.variante, cantidad=1)
+
+        self.client.force_authenticate(user=self.cliente)
+        resp_checkout = self.client.post(reverse('pedido-list'), {
+            'tipo_entrega': 'DOMICILIO',
+            'direccion_formateada': 'Av. Amazonas 123',
+            'ciudad': 'Quito',
+        }, format='json')
+
+        self.assertEqual(resp_checkout.status_code, status.HTTP_201_CREATED)
+        pedido_id = resp_checkout.data['data']['id']
+
+        self.client.force_authenticate(user=self.admin)
+        resp_assign = self.client.post(
+            reverse('pedido-asignar-vendedor', kwargs={'pk': pedido_id}),
+            {'vendedor_id': self.vendedor.id},
+            format='json',
+        )
+
+        self.assertEqual(resp_assign.status_code, status.HTTP_200_OK)
+        pedido = Pedido.objects.get(pk=pedido_id)
+        self.assertEqual(pedido.vendedor, self.vendedor)
+        self.assertEqual(resp_assign.data['data']['vendedor'], self.vendedor.id)

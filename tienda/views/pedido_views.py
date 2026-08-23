@@ -22,7 +22,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerializer
     permission_classes = [permissions.IsAuthenticated, EsDuenoOAdministrador]
     http_method_names = ['get', 'post', 'head', 'options']
-    filterset_fields = ['estado']
+    filterset_fields = ['estado', 'vendedor']
 
     def get_queryset(self):
         user = self.request.user
@@ -35,6 +35,9 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+        vendedor_id = request.query_params.get('vendedor_id')
+        if vendedor_id and (request.user.es_administrador or request.user.es_contador):
+            queryset = queryset.filter(vendedor_id=vendedor_id)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -73,6 +76,25 @@ class PedidoViewSet(viewsets.ModelViewSet):
             data=PedidoSerializer(pedido).data,
             message='Pedido creado correctamente. Estado: Pendiente de pago.',
             status=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=True, methods=['post'], url_path='asignar-vendedor', permission_classes=[EsAdministradorOContador])
+    def asignar_vendedor(self, request, pk=None):
+        pedido = self.get_object()
+        vendedor_id = request.data.get('vendedor_id')
+
+        if vendedor_id in (None, ''):
+            vendedor = None
+        else:
+            vendedor = Usuario.objects.filter(pk=vendedor_id, rol=Rol.VENDEDOR).first()
+            if not vendedor:
+                return error_response(message='El vendedor seleccionado no es válido.', status=400)
+
+        pedido.vendedor = vendedor
+        pedido.save(update_fields=['vendedor', 'actualizado_en'])
+        return success_response(
+            data=PedidoSerializer(pedido).data,
+            message='Vendedor asignado correctamente.',
         )
 
     @action(detail=True, methods=['post'], url_path='subir-comprobante')
