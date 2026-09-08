@@ -11,6 +11,8 @@ from .comision import ComisionVenta, EstadoComision, LiquidacionMensual
 from .contabilidad import Factura, EstadoFacturaSRI, NotaCredito, RetencionImpuesto, LibroVentas, ReporteSRI
 from .notificacion import Notificacion, TipoNotificacion
 from .campana_email import CampanaEmail, SegmentoCampana, EstadoCampana
+from .suscripcion_push import SuscripcionPush
+from .campana_push import CampanaNotificacionPush, SegmentoPush
 
 __all__ = [
     'Usuario', 'Rol',
@@ -26,5 +28,7 @@ __all__ = [
     'Factura', 'EstadoFacturaSRI', 'NotaCredito', 'RetencionImpuesto', 'LibroVentas', 'ReporteSRI',
     'Notificacion', 'TipoNotificacion',
     'CampanaEmail', 'SegmentoCampana', 'EstadoCampana',
+    'SuscripcionPush', 'CampanaNotificacionPush', 'SegmentoPush',
 ]
+
 

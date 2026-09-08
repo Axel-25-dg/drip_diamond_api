@@ -35,6 +35,12 @@ from tienda.views.usuario_views import (
 )
 from tienda.views.campana_views import CampanaEmailViewSet
 from tienda.views.venta_views import ComisionVentaViewSet, LiquidacionMensualViewSet
+from tienda.views.push_views import (
+    AdminPushNotificationViewSet,
+    DesuscribirPushView,
+    SuscribirPushView,
+    VapidPublicKeyView,
+)
 
 router = DefaultRouter()
 router.register('usuarios', UsuarioViewSet, basename='usuario')
@@ -56,8 +62,13 @@ router.register('libro-ventas', LibroVentasViewSet, basename='libro-ventas')
 router.register('reportes-sri', ReporteSRIViewSet, basename='reporte-sri')
 router.register('notificaciones', NotificacionViewSet, basename='notificacion')
 router.register('campanas', CampanaEmailViewSet, basename='campana')
+router.register('push/campanas', AdminPushNotificationViewSet, basename='push-campana')
 
 urlpatterns = [
+    path('push/vapid-key/', VapidPublicKeyView.as_view(), name='push-vapid-key'),
+    path('push/suscribir/', SuscribirPushView.as_view(), name='push-suscribir'),
+    path('push/desuscribir/', DesuscribirPushView.as_view(), name='push-desuscribir'),
+
     path('imagenes/subir/', SubirImagenView.as_view(), name='subir-imagen'),
 
     path('usuarios/registro/', RegistroClienteView.as_view(), name='registro-cliente'),
@@ -74,3 +85,4 @@ urlpatterns = [
         name='verificar-comprobante',
     ),
 ] + router.urls
+

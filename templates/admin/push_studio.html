@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Push Notification Studio — Zapatillas EC Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-green: #22c55e;
+      --accent-pink: #ec4899;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .header {
+      max-width: 1280px;
+      margin: 0 auto 2rem auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .studio-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .studio-container { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    textarea.form-control { resize: vertical; min-height: 90px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      color: white;
+      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 20px -3px rgba(59, 130, 246, 0.6);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
+    /* SIMULADOR GOOGLE / ANDROID NOTIFICATION */
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .mockup-phone {
+      background: #000;
+      border-radius: 2rem;
+      padding: 1.5rem 1rem;
+      border: 4px solid #334155;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 120px;
+      height: 18px;
+      background: #1e293b;
+      border-radius: 0 0 12px 12px;
+      margin: -1.5rem auto 1rem auto;
+    }
+
+    .google-notification-card {
+      background: #1e293b;
+      border-radius: 1.25rem;
+      padding: 1rem;
+      color: #fff;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .notif-top-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+    }
+
+    .notif-app-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #3b82f6;
+    }
+
+    .notif-app-name { font-weight: 700; color: #cbd5e1; }
+    .notif-time { margin-left: auto; font-size: 0.7rem; }
+
+    .notif-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.25rem;
+    }
+
+    .notif-body {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+      margin-bottom: 0.75rem;
+    }
+
+    .notif-banner-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 0.75rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .notif-actions {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 0.5rem;
+    }
+
+    .notif-action-btn {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #60a5fa;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>
+      <span>⚡</span> Push Notification Studio (Estilo Google)
+    </h1>
+    <div class="badge-status">
+      <span style="width:8px; height:8px; background:#4ade80; border-radius:50%;"></span>
+      Servidor Push VAPID Activo
+    </div>
+  </div>
+
+  <div class="studio-container">
+    
+    <!-- COLUMNA 1: FORMULARIO DE REDACCIÓN DE NOTIFICACIÓN -->
+    <div class="card">
+      <h2 style="font-size:1.2rem; font-weight:700; margin-bottom:1.25rem;">Redactar Notificación Nativa</h2>
+
+      <form id="pushForm">
+        
+        <div class="form-group">
+          <label>Título de la Notificación 📌</label>
+          <input type="text" id="inputTitulo" class="form-control" placeholder="Ej: ¡Nuevas Nike Air Jordan disponibles! 👟" value="¡Gran Oferta Relámpago! 👟🔥" required>
+        </div>
+
+        <div class="form-group">
+          <label>Mensaje Principal 💬</label>
+          <textarea id="inputCuerpo" class="form-control" placeholder="Escribe un mensaje corto y directo..." required>Obtén un 25% de descuento en tu par favorito solo por hoy. ¡Haz clic para aprovechar!</textarea>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Icono de Marca (URL)</label>
+            <input type="url" id="inputIcono" class="form-control" placeholder="https://..." value="https://cdn-icons-png.flaticon.com/512/732/732229.png">
+          </div>
+          <div class="form-group">
+            <label>URL Destino al dar Clic 🔗</label>
+            <input type="text" id="inputUrl" class="form-control" placeholder="/promociones" value="/catalogo">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Imagen Grande / Banner Promocional 🖼️ (Estilo Google App Banner)</label>
+          <input type="url" id="inputImagen" class="form-control" placeholder="https://..." value="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600&auto=format&fit=crop&q=80">
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Audiencia Objetivo 🎯</label>
+            <select id="inputSegmento" class="form-control">
+              <option value="TODOS">Todos los Dispositivos Suscritos</option>
+              <option value="CLIENTES">Solo Clientes Registrados</option>
+              <option value="VENDEDORES">Solo Equipo de Vendedores</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Efectos de Dispositivo</label>
+            <div style="display:flex; gap:1rem; margin-top:0.5rem;">
+              <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; color:#fff; cursor:pointer;">
+                <input type="checkbox" id="checkSonido" checked> Sonido
+              </label>
+              <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; color:#fff; cursor:pointer;">
+                <input type="checkbox" id="checkVibracion" checked> Vibración
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:1rem; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="probarEnMiNavegador()" style="flex:1;">
+            🔔 Probar en Mi Navegador
+          </button>
+          <button type="submit" class="btn btn-primary" style="flex:1.5;">
+            🚀 Despachar Notificación Masiva
+          </button>
+        </div>
+
+      </form>
+
+      <div id="resultBox" style="margin-top:1.25rem; display:none; padding:1rem; border-radius:0.75rem; font-size:0.9rem;"></div>
+    </div>
+
+    <!-- COLUMNA 2: SIMULADOR DE NOTIFICACIÓN EN TIEMPO REAL (MOCKUP) -->
+    <div>
+      <div class="preview-header">
+        <h2 style="font-size:1.1rem; font-weight:700;">Previsualización en Vivo</h2>
+        <span style="font-size:0.8rem; color:var(--text-muted);">Android / Google App Notification</span>
+      </div>
+
+      <div class="mockup-phone">
+        <div class="phone-notch"></div>
+
+        <div class="google-notification-card">
+          <div class="notif-top-bar">
+            <img id="prevIcon" src="https://cdn-icons-png.flaticon.com/512/732/732229.png" class="notif-app-icon" alt="App">
+            <span class="notif-app-name">Zapatillas EC</span>
+            <span>• Ahora</span>
+            <span class="notif-time">▼</span>
+          </div>
+
+          <div id="prevTitle" class="notif-title">¡Gran Oferta Relámpago! 👟🔥</div>
+          <div id="prevBody" class="notif-body">Obtén un 25% de descuento en tu par favorito solo por hoy. ¡Haz clic para aprovechar!</div>
+
+          <img id="prevBanner" src="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600&auto=format&fit=crop&q=80" class="notif-banner-img" alt="Banner">
+
+          <div class="notif-actions">
+            <button class="notif-action-btn">VER DETALLES 🚀</button>
+            <button class="notif-action-btn" style="color:#94a3b8;">CERRAR</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem; text-align:center; font-size:0.75rem; color:#64748b;">
+          Google System Push Notification Engine v1.0
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/static/js/push-client.js"></script>
+  <script>
+    // Conectar inputs del formulario con la previsualización interactiva en vivo
+    const inputTitulo = document.getElementById('inputTitulo');
+    const inputCuerpo = document.getElementById('inputCuerpo');
+    const inputIcono = document.getElementById('inputIcono');
+    const inputImagen = document.getElementById('inputImagen');
+
+    const prevTitle = document.getElementById('prevTitle');
+    const prevBody = document.getElementById('prevBody');
+    const prevIcon = document.getElementById('prevIcon');
+    const prevBanner = document.getElementById('prevBanner');
+
+    function actualizarPreview() {
+      prevTitle.textContent = inputTitulo.value || 'Título de notificación';
+      prevBody.textContent = inputCuerpo.value || 'Mensaje de notificación...';
+      
+      if (inputIcono.value) {
+        prevIcon.src = inputIcono.value;
+        prevIcon.style.display = 'block';
+      }
+      
+      if (inputImagen.value) {
+        prevBanner.src = inputImagen.value;
+        prevBanner.style.display = 'block';
+      } else {
+        prevBanner.style.display = 'none';
+      }
+    }
+
+    inputTitulo.addEventListener('input', actualizarPreview);
+    inputCuerpo.addEventListener('input', actualizarPreview);
+    inputIcono.addEventListener('input', actualizarPreview);
+    inputImagen.addEventListener('input', actualizarPreview);
+
+    // Probar notificación nativa directamente en este navegador
+    async function probarEnMiNavegador() {
+      const client = new ZapatillasPushClient();
+      try {
+        if (Notification.permission !== 'granted') {
+          await client.solicitarYRegistrar();
+        }
+        
+        // Disparar la notificación local para prueba previa rápida
+        const reg = await navigator.serviceWorker.ready;
+        reg.showNotification(inputTitulo.value, {
+          body: inputCuerpo.value,
+          icon: inputIcono.value || '/static/img/icon-192.png',
+          image: inputImagen.value || undefined,
+          vibrate: [200, 100, 200],
+          data: { url: document.getElementById('inputUrl').value || '/' }
+        });
+      } catch (err) {
+        alert('Para probar, por favor permite las notificaciones en tu navegador: ' + err.message);
+      }
+    }
+
+    // Enviar notificación masiva vía API Django backend
+    document.getElementById('pushForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const resultBox = document.getElementById('resultBox');
+      resultBox.style.display = 'block';
+      resultBox.style.background = 'rgba(59, 130, 246, 0.2)';
+      resultBox.style.color = '#93c5fd';
+      resultBox.textContent = '⏳ Despachando notificación push a los dispositivos registrados...';
+
+      const payload = {
+        titulo: inputTitulo.value,
+        cuerpo: inputCuerpo.value,
+        icono_url: inputIcono.value,
+        imagen_url: inputImagen.value,
+        url_destino: document.getElementById('inputUrl').value,
+        segmento: document.getElementById('inputSegmento').value,
+        sonido_activo: document.getElementById('checkSonido').checked,
+        vibracion_activa: document.getElementById('checkVibracion').checked,
+      };
+
+      try {
+        const response = await fetch('/api/tienda/push/campanas/enviar-custom/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') || ''
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const resData = await response.json();
+        if (response.ok && resData.success) {
+          resultBox.style.background = 'rgba(34, 197, 94, 0.2)';
+          resultBox.style.color = '#4ade80';
+          resultBox.innerHTML = `<strong>¡Éxito! 🚀</strong> ${resData.message}`;
+        } else {
+          resultBox.style.background = 'rgba(239, 68, 68, 0.2)';
+          resultBox.style.color = '#fca5a5';
+          resultBox.innerHTML = `<strong>Error:</strong> ${resData.message || 'No se pudo enviar la notificación.'}`;
+        }
+      } catch (err) {
+        resultBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        resultBox.style.color = '#fca5a5';
+        resultBox.textContent = 'Error de conexión: ' + err.message;
+      }
+    });
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+
+</body>
+</html>

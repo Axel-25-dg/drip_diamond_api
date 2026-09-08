@@ -3,8 +3,9 @@ from django.template.loader import render_to_string
 from tienda.services.resend_service import enviar_correo_resend
 
 
-def _enviar(usuario, tipo, asunto, mensaje_corto, template, contexto):
+def _enviar(usuario, tipo, asunto, mensaje_corto, template, contexto, url_destino='/', imagen_url=''):
     from tienda.models import Notificacion
+    from tienda.services.push_service import enviar_push_a_usuario
 
     mensaje_html = render_to_string(template, contexto)
     notificacion = Notificacion.objects.create(
@@ -16,7 +17,21 @@ def _enviar(usuario, tipo, asunto, mensaje_corto, template, contexto):
         notificacion.correo_enviado = True
         notificacion.save(update_fields=['correo_enviado'])
 
+    # Enviar notificación nativa al sistema operativo (Android/iOS/PC/Mac)
+    try:
+        enviar_push_a_usuario(
+            usuario=usuario,
+            titulo=asunto,
+            cuerpo=mensaje_corto,
+            url_destino=url_destino,
+            imagen_url=imagen_url,
+            data={'tipo': tipo, 'notificacion_id': notificacion.id}
+        )
+    except Exception as e:
+        pass
+
     return notificacion
+
 
 
 def notificar_bienvenida(usuario):

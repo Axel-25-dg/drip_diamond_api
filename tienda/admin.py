@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 
 from tienda.models import (
     CampanaEmail,
+    CampanaNotificacionPush,
     Carrito,
     Categoria,
     ComisionVenta,
@@ -25,10 +26,12 @@ from tienda.models import (
     Promocion,
     ReporteSRI,
     RetencionImpuesto,
+    SuscripcionPush,
     Talla,
     Usuario,
     VarianteProducto,
 )
+
 
 
 @admin.register(Usuario)
@@ -131,5 +134,54 @@ class CampanaEmailAdmin(admin.ModelAdmin):
                 if 'error' not in res:
                     procesados += 1
         self.message_user(request, f'Se ejecutó el envío de {procesados} campaña(s) masiva(s).')
+
+
+@admin.register(SuscripcionPush)
+class SuscripcionPushAdmin(admin.ModelAdmin):
+    list_display = ['id', 'usuario', 'endpoint_corto', 'activa', 'user_agent_corto', 'creada_en', 'ultima_actividad']
+    list_filter = ['activa', 'creada_en']
+    search_fields = ['usuario__username', 'usuario__email', 'endpoint']
+    readonly_fields = ['creada_en', 'ultima_actividad']
+    actions = ['probar_notificacion_push_accion']
+
+    def endpoint_corto(self, obj):
+        return f"{obj.endpoint[:45]}..."
+    endpoint_corto.short_description = 'Endpoint Push'
+
+    def user_agent_corto(self, obj):
+        return obj.user_agent[:35] if obj.user_agent else '-'
+    user_agent_corto.short_description = 'Navegador/SO'
+
+    @admin.action(description='🔔 Enviar Notificación Push de Prueba al Dispositivo')
+    def probar_notificacion_push_accion(self, request, queryset):
+        from tienda.services.push_service import enviar_notificacion_push_suscripcion
+        exitosos = 0
+        for sub in queryset:
+            ok = enviar_notificacion_push_suscripcion(
+                suscripcion=sub,
+                titulo="¡Prueba de Notificación Push! 🔔",
+                cuerpo="Esta es una prueba de notificación nativa enviada desde Django Admin.",
+                url_destino="/"
+            )
+            if ok:
+                exitosos += 1
+        self.message_user(request, f'Notificación Push enviada con éxito a {exitosos} dispositivo(s).')
+
+
+@admin.register(CampanaNotificacionPush)
+class CampanaNotificacionPushAdmin(admin.ModelAdmin):
+    list_display = ['id', 'titulo', 'segmento', 'total_enviados', 'total_exitosos', 'total_fallidos', 'creado_por', 'creada_en']
+    list_filter = ['segmento', 'creada_en']
+    search_fields = ['titulo', 'cuerpo']
+    readonly_fields = ['total_enviados', 'total_exitosos', 'total_fallidos', 'creada_en']
+    actions = ['despachar_push_masivo_accion']
+
+    @admin.action(description='🚀 Despachar Notificación Push Masiva a la Barra del Sistema')
+    def despachar_push_masivo_accion(self, request, queryset):
+        from tienda.services.push_service import broadcast_push_campana
+        for campana in queryset:
+            broadcast_push_campana(campana)
+        self.message_user(request, f'Se despacharon {queryset.count()} campaña(s) Push nativas al sistema.')
+
 
 

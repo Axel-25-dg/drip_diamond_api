@@ -17,8 +17,12 @@ from tienda.views.auth_views import (
     VerificarOTPView,
 )
 
+from django.views.generic import TemplateView
+
 urlpatterns = [
+    path('admin/push-studio/', TemplateView.as_view(template_name='admin/push_studio.html'), name='admin-push-studio'),
     path('admin/', admin.site.urls),
+
 
     # Documentación Swagger / OpenAPI / Redoc
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
