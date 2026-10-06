@@ -17,9 +17,9 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'inseguro-cambiar-en-produccion')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'dripdiamond.store,tienda.dripdiamond.store,www.dripdiamond.store,127.0.0.1,localhost').split(',') if h.strip()]
-if '.vercel.app' not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append('.vercel.app')
-    ALLOWED_HOSTS.append('*')
+for domain in ['dripdiamond.store', 'www.dripdiamond.store', 'tienda.dripdiamond.store', '.vercel.app', '127.0.0.1', 'localhost', '*']:
+    if domain not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(domain)
 
 # Indicar a Django que está detrás de un proxy HTTPS (Vercel / Nginx)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
