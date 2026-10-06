@@ -19,9 +19,12 @@ class ControlAccesoMiddleware(MiddlewareMixin):
             return None
 
 
-        from seguridad_acceso.services import ip_esta_bloqueada
-
-        ip = _obtener_ip(request)
-        if ip and ip_esta_bloqueada(ip):
-            return JsonResponse({'detail': 'Tu dirección IP está temporalmente bloqueada por seguridad.'}, status=423)
+        try:
+            from seguridad_acceso.services import ip_esta_bloqueada
+            ip = _obtener_ip(request)
+            if ip and ip_esta_bloqueada(ip):
+                return JsonResponse({'detail': 'Tu dirección IP está temporalmente bloqueada por seguridad.'}, status=423)
+        except Exception:
+            pass
         return None
+

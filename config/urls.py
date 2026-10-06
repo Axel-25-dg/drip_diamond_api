@@ -17,11 +17,22 @@ from tienda.views.auth_views import (
     VerificarOTPView,
 )
 
+from django.http import JsonResponse
 from django.views.generic import TemplateView
 
+def root_api_view(request):
+    return JsonResponse({
+        "status": "online",
+        "name": "Drip Diamond API",
+        "version": "1.0.0",
+        "docs": "/api/docs/"
+    })
+
 urlpatterns = [
+    path('', root_api_view, name='api-root-index'),
     path('admin/push-studio/', TemplateView.as_view(template_name='admin/push_studio.html'), name='admin-push-studio'),
     path('admin/', admin.site.urls),
+
 
 
     # Documentación Swagger / OpenAPI / Redoc
