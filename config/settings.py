@@ -17,6 +17,12 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'inseguro-cambiar-en-produccion')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'dripdiamond.store,tienda.dripdiamond.store,www.dripdiamond.store,127.0.0.1,localhost').split(',') if h.strip()]
+if '.vercel.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.vercel.app')
+    ALLOWED_HOSTS.append('*')
+
+# Indicar a Django que está detrás de un proxy HTTPS (Vercel / Nginx)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Necesario en producción detrás de HTTPS con dominio propio (ej. despliegue con Nginx/Gunicorn)
 CSRF_TRUSTED_ORIGINS = [
@@ -26,6 +32,8 @@ for origin in ["https://tienda.dripdiamond.store", "https://dripdiamond.store", 
     if origin not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(origin)
 
+# Permitir orígenes de vercel.app en CSRF
+CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
 
 
 # ------------------------------------------------------------------
@@ -105,18 +113,27 @@ DB_HOST = os.environ.get('DB_HOST', 'localhost')
 DB_PORT = os.environ.get('DB_PORT', '5432')
 
 if not DB_NAME:
-    raise RuntimeError('La variable de entorno DB_NAME no está configurada. Configure el archivo .env para usar Postgres.')
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER or '',
-        'PASSWORD': DB_PASSWORD or '',
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
+    # Si no se define DB_NAME, usamos SQLite en /tmp como fallback o advertencia
+    if os.environ.get('VERCEL'):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': '/tmp/db.sqlite3',
+            }
+        }
+    else:
+        raise RuntimeError('La variable de entorno DB_NAME no está configurada. Configure el archivo .env para usar Postgres.')
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DB_NAME,
+            'USER': DB_USER or '',
+            'PASSWORD': DB_PASSWORD or '',
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        }
     }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -268,16 +285,15 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
+# Asegurar carpeta de logs en entornos locales
+(BASE_DIR / 'logs').mkdir(exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'zapatillas.log',
-        },
         'console': {'level': 'DEBUG', 'class': 'logging.StreamHandler'},
     },
     'root': {'handlers': ['console'], 'level': 'INFO'},
 }
+
