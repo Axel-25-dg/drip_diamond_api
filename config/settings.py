@@ -113,12 +113,14 @@ import dj_database_url
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-        )
-    }
+    db_config = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+    )
+    if 'OPTIONS' in db_config:
+        db_config['OPTIONS'].pop('pgbouncer', None)
+    DATABASES = {'default': db_config}
+
 else:
     DB_NAME = os.environ.get('DB_NAME')
     DB_USER = os.environ.get('DB_USER')
