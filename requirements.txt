@@ -16,4 +16,3 @@ pywebpush>=1.14.0
 cryptography>=42.0.0
 whitenoise>=6.0.0
 dj-database-url>=2.1.0
-

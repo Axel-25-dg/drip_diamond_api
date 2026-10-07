@@ -28,12 +28,16 @@ def root_api_view(request):
         "docs": "/api/docs/"
     })
 
+from tienda.views.media_views import servir_archivo_db
+
 urlpatterns = [
     path('', root_api_view, name='api-root-index'),
     path('admin/push-studio/', TemplateView.as_view(template_name='admin/push_studio.html'), name='admin-push-studio'),
     path('admin/', admin.site.urls),
 
-
+    # Servir archivos y fotos desde la Base de Datos (compatible con Vercel)
+    path('api/media/<path:ruta>', servir_archivo_db, name='servir-media-api'),
+    path('media/<path:ruta>', servir_archivo_db, name='servir-media'),
 
     # Documentación Swagger / OpenAPI / Redoc
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -51,6 +55,3 @@ urlpatterns = [
     path('api/', include('tienda.urls')),
     path('api/seguridad/', include('seguridad_acceso.urls')),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

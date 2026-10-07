@@ -180,7 +180,19 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = 'media/'
+# ------------------------------------------------------------------
+# Almacenamiento Media (Base de Datos — 100% Persistente en Vercel)
+# ------------------------------------------------------------------
+DEFAULT_FILE_STORAGE = 'tienda.storage.DatabaseStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "tienda.storage.DatabaseStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+MEDIA_URL = '/api/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

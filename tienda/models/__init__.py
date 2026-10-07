@@ -13,6 +13,7 @@ from .notificacion import Notificacion, TipoNotificacion
 from .campana_email import CampanaEmail, SegmentoCampana, EstadoCampana
 from .suscripcion_push import SuscripcionPush
 from .campana_push import CampanaNotificacionPush, SegmentoPush
+from .archivo_db import ArchivoAlmacenado
 
 __all__ = [
     'Usuario', 'Rol',
@@ -29,6 +30,7 @@ __all__ = [
     'Notificacion', 'TipoNotificacion',
     'CampanaEmail', 'SegmentoCampana', 'EstadoCampana',
     'SuscripcionPush', 'CampanaNotificacionPush', 'SegmentoPush',
+    'ArchivoAlmacenado',
 ]
 
 

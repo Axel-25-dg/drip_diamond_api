@@ -30,6 +30,7 @@ from tienda.models import (
     Talla,
     Usuario,
     VarianteProducto,
+    ArchivoAlmacenado,
 )
 
 
@@ -182,6 +183,13 @@ class CampanaNotificacionPushAdmin(admin.ModelAdmin):
         for campana in queryset:
             broadcast_push_campana(campana)
         self.message_user(request, f'Se despacharon {queryset.count()} campaña(s) Push nativas al sistema.')
+
+
+@admin.register(ArchivoAlmacenado)
+class ArchivoAlmacenadoAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre', 'content_type', 'tamano_bytes', 'actualizado_en']
+    search_fields = ['nombre']
+    readonly_fields = ['nombre', 'tamano_bytes', 'content_type', 'creado_en', 'actualizado_en']
 
 
 
