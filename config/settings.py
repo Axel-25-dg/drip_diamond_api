@@ -108,34 +108,54 @@ ASGI_APPLICATION = 'config.asgi.application'
 # ------------------------------------------------------------------
 # Base de datos
 # ------------------------------------------------------------------
-DB_NAME = os.environ.get('DB_NAME')
-DB_USER = os.environ.get('DB_USER')
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
-DB_PORT = os.environ.get('DB_PORT', '5432')
+import urllib.parse
 
-if not DB_NAME:
-    # Si no se define DB_NAME, usamos SQLite en /tmp como fallback o advertencia
-    if os.environ.get('VERCEL'):
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': '/tmp/db.sqlite3',
-            }
-        }
-    else:
-        raise RuntimeError('La variable de entorno DB_NAME no está configurada. Configure el archivo .env para usar Postgres.')
-else:
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    url = urllib.parse.urlparse(DATABASE_URL)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': DB_NAME,
-            'USER': DB_USER or '',
-            'PASSWORD': DB_PASSWORD or '',
-            'HOST': DB_HOST,
-            'PORT': DB_PORT,
+            'NAME': url.path.lstrip('/'),
+            'USER': url.username or '',
+            'PASSWORD': url.password or '',
+            'HOST': url.hostname or '',
+            'PORT': str(url.port or 5432),
+            'OPTIONS': {'sslmode': 'require'} if url.hostname not in ('localhost', '127.0.0.1') else {},
         }
     }
+else:
+    DB_NAME = os.environ.get('DB_NAME')
+    DB_USER = os.environ.get('DB_USER')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
+    DB_HOST = os.environ.get('DB_HOST', 'localhost')
+    DB_PORT = os.environ.get('DB_PORT', '5432')
+
+    if not DB_NAME:
+        if os.environ.get('VERCEL'):
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': '/tmp/db.sqlite3',
+                }
+            }
+        else:
+            raise RuntimeError('La variable de entorno DB_NAME o DATABASE_URL no está configurada.')
+    else:
+        db_options = {'sslmode': 'require'} if (DB_HOST and DB_HOST not in ('localhost', '127.0.0.1')) else {}
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': DB_NAME,
+                'USER': DB_USER or '',
+                'PASSWORD': DB_PASSWORD or '',
+                'HOST': DB_HOST,
+                'PORT': DB_PORT,
+                'OPTIONS': db_options,
+            }
+        }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
