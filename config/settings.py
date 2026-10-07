@@ -28,11 +28,17 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://tienda.dripdiamond.store,https://dripdiamond.store,https://www.dripdiamond.store').split(',') if o.strip()
 ]
-for origin in ["https://tienda.dripdiamond.store", "https://dripdiamond.store", "https://www.dripdiamond.store"]:
+for origin in [
+    "https://tienda.dripdiamond.store",
+    "https://dripdiamond.store",
+    "https://www.dripdiamond.store",
+    "https://drip-diamond-web-git-main-axel-25-dgs-projects.vercel.app",
+]:
     if origin not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(origin)
 
 # Permitir orígenes de vercel.app en CSRF
+
 CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
 
 
@@ -227,12 +233,23 @@ CORS_ALLOWED_ORIGINS = [
     ).split(',') if o.strip()
 ]
 
-# Asegurar que los dominios de producción siempre estén permitidos
-for origin in ["https://tienda.dripdiamond.store", "https://dripdiamond.store", "https://www.dripdiamond.store"]:
+# Asegurar que los dominios de producción y frontend estén permitidos
+for origin in [
+    "https://tienda.dripdiamond.store",
+    "https://dripdiamond.store",
+    "https://www.dripdiamond.store",
+    "https://drip-diamond-web-git-main-axel-25-dgs-projects.vercel.app",
+]:
     if origin not in CORS_ALLOWED_ORIGINS:
         CORS_ALLOWED_ORIGINS.append(origin)
 
+# Permitir automáticamente cualquier despliegue y subdominio de Vercel
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/.*\.vercel\.app$",
+]
+
 CORS_ALLOW_CREDENTIALS = True
+
 
 
 CORS_ALLOW_METHODS = [
