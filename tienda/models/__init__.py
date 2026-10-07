@@ -1,6 +1,6 @@
 from .usuario import Usuario, Rol
 from .perfiles import PerfilVendedor, PerfilContador
-from .producto import Marca, Categoria, Producto, Talla, VarianteProducto, Promocion, CalidadProducto
+from .producto import Marca, Categoria, Producto, Talla, VarianteProducto, Promocion, CalidadProducto, Calificacion
 from .carrito import Carrito, ItemCarrito
 from .pedido import Pedido, DetallePedido, EstadoPedido, TipoEntrega
 from .direccion_envio import DireccionEnvioPedido
@@ -18,7 +18,7 @@ from .archivo_db import ArchivoAlmacenado
 __all__ = [
     'Usuario', 'Rol',
     'PerfilVendedor', 'PerfilContador',
-    'Marca', 'Categoria', 'Producto', 'Talla', 'VarianteProducto', 'Promocion', 'CalidadProducto',
+    'Marca', 'Categoria', 'Producto', 'Talla', 'VarianteProducto', 'Promocion', 'CalidadProducto', 'Calificacion',
     'Carrito', 'ItemCarrito',
     'Pedido', 'DetallePedido', 'EstadoPedido', 'TipoEntrega',
     'DireccionEnvioPedido',

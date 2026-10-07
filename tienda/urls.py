@@ -24,6 +24,7 @@ from tienda.views.producto_views import (
     PromocionViewSet,
     TallaViewSet,
     VarianteProductoViewSet,
+    CalificacionViewSet,
 )
 from tienda.views.usuario_views import (
     CrearContadorView,
@@ -63,6 +64,7 @@ router.register('reportes-sri', ReporteSRIViewSet, basename='reporte-sri')
 router.register('notificaciones', NotificacionViewSet, basename='notificacion')
 router.register('campanas', CampanaEmailViewSet, basename='campana')
 router.register('push/campanas', AdminPushNotificationViewSet, basename='push-campana')
+router.register('calificaciones', CalificacionViewSet, basename='calificacion')
 
 urlpatterns = [
     path('push/vapid-key/', VapidPublicKeyView.as_view(), name='push-vapid-key'),

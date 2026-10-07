@@ -1,6 +1,7 @@
 import uuid
 
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -139,3 +140,21 @@ class Promocion(models.Model):
 
     def __str__(self):
         return f'Promo {self.producto} → ${self.precio_promocional}'
+
+
+class Calificacion(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='calificaciones', null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones')
+    calificacion = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    titulo = models.CharField(max_length=150)
+    comentario = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+    verificado = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = 'Calificación'
+        verbose_name_plural = 'Calificaciones'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f'{self.usuario} - {self.calificacion} estrellas'

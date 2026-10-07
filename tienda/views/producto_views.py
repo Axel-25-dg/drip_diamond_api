@@ -4,7 +4,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 
 from core.responses import success_response
 from tienda.filters import ProductoFilter
-from tienda.models import Categoria, Marca, Producto, Promocion, Talla, VarianteProducto
+from tienda.models import Categoria, Marca, Producto, Promocion, Talla, VarianteProducto, Calificacion
 from tienda.permissions import SoloLecturaOAdministrador
 from tienda.serializers.producto_serializers import (
     CategoriaSerializer,
@@ -14,7 +14,9 @@ from tienda.serializers.producto_serializers import (
     PromocionSerializer,
     TallaSerializer,
     VarianteProductoSerializer,
+    CalificacionSerializer,
 )
+from rest_framework import permissions
 
 
 class MarcaViewSet(viewsets.ModelViewSet):
@@ -84,3 +86,13 @@ class PromocionViewSet(viewsets.ModelViewSet):
             data={'promocion_id': promocion.id, 'total_notificados': clientes.count()},
             message=f'Promoción notificada exitosamente a {clientes.count()} clientes via Resend.',
         )
+
+
+class CalificacionViewSet(viewsets.ModelViewSet):
+    queryset = Calificacion.objects.all()
+    serializer_class = CalificacionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def perform_create(self, serializer):
+        # Al crear una reseña, se asigna automáticamente al usuario que está logueado
+        serializer.save(usuario=self.request.user)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from tienda.models import Categoria, Marca, Producto, Promocion, Talla, VarianteProducto
+from tienda.models import Categoria, Marca, Producto, Promocion, Talla, VarianteProducto, Calificacion
 
 
 class VarianteProductoCreateSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class MarcaSerializer(serializers.ModelSerializer):
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
-    imagen = serializers.ImageField(read_only=True)
+    imagen = serializers.ImageField(required=False, allow_null=True)
     imagen_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -151,3 +151,17 @@ class ProductoDetalleSerializer(serializers.ModelSerializer):
                 sku=sku,
             )
         return producto
+
+
+class CalificacionSerializer(serializers.ModelSerializer):
+    usuario_nombre = serializers.CharField(source='usuario.nombre', read_only=True)
+    usuario_avatar = serializers.SerializerMethodField()
+    producto_recomendado = serializers.CharField(source='producto.nombre', read_only=True)
+
+    class Meta:
+        model = Calificacion
+        fields = ['id', 'usuario', 'usuario_nombre', 'usuario_avatar', 'calificacion', 'titulo', 'comentario', 'fecha', 'producto', 'producto_recomendado', 'verificado']
+        read_only_fields = ['id', 'fecha', 'verificado']
+
+    def get_usuario_avatar(self, obj):
+        return obj.usuario.foto_perfil_url if hasattr(obj.usuario, 'foto_perfil_url') else None
