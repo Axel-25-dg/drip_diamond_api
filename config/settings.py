@@ -108,22 +108,16 @@ ASGI_APPLICATION = 'config.asgi.application'
 # ------------------------------------------------------------------
 # Base de datos
 # ------------------------------------------------------------------
-import urllib.parse
+import dj_database_url
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    url = urllib.parse.urlparse(DATABASE_URL)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': url.path.lstrip('/'),
-            'USER': url.username or '',
-            'PASSWORD': url.password or '',
-            'HOST': url.hostname or '',
-            'PORT': str(url.port or 5432),
-            'OPTIONS': {'sslmode': 'require'} if url.hostname not in ('localhost', '127.0.0.1') else {},
-        }
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+        )
     }
 else:
     DB_NAME = os.environ.get('DB_NAME')
@@ -141,7 +135,7 @@ else:
                 }
             }
         else:
-            raise RuntimeError('La variable de entorno DB_NAME o DATABASE_URL no está configurada.')
+            raise RuntimeError('La variable de entorno DATABASE_URL o DB_NAME no está configurada.')
     else:
         db_options = {'sslmode': 'require'} if (DB_HOST and DB_HOST not in ('localhost', '127.0.0.1')) else {}
         DATABASES = {
@@ -155,6 +149,7 @@ else:
                 'OPTIONS': db_options,
             }
         }
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
